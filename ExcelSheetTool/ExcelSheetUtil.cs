@@ -3,7 +3,7 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using SheetDataTool;
 
-namespace ExcelSheetUtil
+namespace ExcelSheetTool
 {
 	public static class ExcelSheetUtil
 	{
