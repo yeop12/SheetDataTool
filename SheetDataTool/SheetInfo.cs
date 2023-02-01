@@ -42,8 +42,10 @@ namespace SheetDataTool
 			sb.AppendLine($"Name : {Name}");
 			sb.AppendLine($"Row count : {RowCount}, Column : {ColumnCount}");
 			var maxLength = _data.Cast<string>().Where(x => x is not null).Max(x => x.Length + (Encoding.UTF8.GetByteCount(x) - x.Length) / 2);
+			var line = new string('-', (maxLength + 1) * ColumnCount);
 			for (var row = 0; row < RowCount; ++row)
 			{
+				sb.AppendLine(line);
 				for (var column = 0; column < ColumnCount; ++column)
 				{
 					var data = _data[row, column] ?? string.Empty;
@@ -53,6 +55,7 @@ namespace SheetDataTool
 				}
 				sb.AppendLine();
 			}
+			sb.AppendLine(line);
 			return sb.ToString();
 		}
 	}
