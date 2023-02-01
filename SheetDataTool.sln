@@ -5,7 +5,9 @@ VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheetDataTool", "SheetDataTool\SheetDataTool.csproj", "{B97C52D3-58A9-44E2-9CC2-07B6504412B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelSheetUtil", "ExcelSheetUtil\ExcelSheetUtil.csproj", "{9A78D0F5-D28A-4E4B-8875-D3E3404E25E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelSheetUtil", "ExcelSheetUtil\ExcelSheetUtil.csproj", "{9A78D0F5-D28A-4E4B-8875-D3E3404E25E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelSheetConsole", "ExcelSheetConsole\ExcelSheetConsole.csproj", "{57CF06B2-7F3F-4E56-BAE1-355E840B580B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{9A78D0F5-D28A-4E4B-8875-D3E3404E25E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A78D0F5-D28A-4E4B-8875-D3E3404E25E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A78D0F5-D28A-4E4B-8875-D3E3404E25E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57CF06B2-7F3F-4E56-BAE1-355E840B580B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57CF06B2-7F3F-4E56-BAE1-355E840B580B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57CF06B2-7F3F-4E56-BAE1-355E840B580B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57CF06B2-7F3F-4E56-BAE1-355E840B580B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
