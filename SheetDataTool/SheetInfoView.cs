@@ -23,5 +23,8 @@
 			RowCount = endRow - startRow + 1;
 			ColumnCount = endColumn - startColumn + 1;
 		}
+
+		public int GetRealRow(int row) => _startRow + row;
+		public int GetRealColumn(int column) => _startColumn + column;
 	}
 }

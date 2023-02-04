@@ -24,7 +24,7 @@ namespace SheetDataTool
 			if (column < 0 || column >= ColumnCount) throw new ArgumentOutOfRangeException(nameof(column));
 			if (match is null) throw new ArgumentNullException(nameof(match));
 			
-			for (var row = startRow; row < startRow; ++row)
+			for (var row = startRow; row < RowCount; ++row)
 			{
 				var cell = this[row, column];
 				if (match.Invoke(cell))
