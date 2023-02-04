@@ -3,7 +3,7 @@
 namespace SheetDataTool
 {
 	[ContentsDescription("Design", false)]
-	internal class DesignContents : ElementCodeContents<DesignContents.Element>
+	internal sealed class DesignContents : ElementCodeContents<DesignContents.Element>
 	{
 		internal record Element()
 		{

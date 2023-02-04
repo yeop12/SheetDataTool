@@ -2,7 +2,7 @@
 
 namespace SheetDataTool
 {
-	public class ContentsData
+	public sealed class ContentsData
 	{
 		private readonly List<CodeContents> _contents = new();
 

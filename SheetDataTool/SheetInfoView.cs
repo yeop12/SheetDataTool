@@ -1,6 +1,6 @@
 ﻿namespace SheetDataTool
 {
-	internal class SheetInfoView
+	internal sealed class SheetInfoView
 	{
 		private readonly SheetInfo _sheetInfo;
 		private readonly int _startRow;

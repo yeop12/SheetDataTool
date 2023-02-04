@@ -3,7 +3,7 @@
 namespace SheetDataTool
 {
 	[ContentsDescription("Enum", true)]
-	internal class EnumContents : NamedCodeContents<EnumContents.Element>
+	internal sealed class EnumContents : NamedCodeContents<EnumContents.Element>
 	{
 		private static readonly HashSet<string> UsableTypes
 			= new() { "Byte", "Sbyte", "Short", "Ushort", "Int", "Uint", "Long", "Ulong" };

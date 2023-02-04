@@ -2,7 +2,7 @@
 
 namespace SheetDataTool
 {
-	public class SheetInfo
+	public sealed class SheetInfo
 	{
 		private readonly string?[,] _data;
 

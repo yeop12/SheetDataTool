@@ -3,7 +3,7 @@
 namespace SheetDataTool
 {
 	[ContentsDescription("Record", true)]
-	internal class RecordContents : NamedCodeContents<RecordContents.Element>
+	internal sealed class RecordContents : NamedCodeContents<RecordContents.Element>
 	{
 		internal record Element()
 		{

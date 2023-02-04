@@ -1,6 +1,6 @@
 ﻿namespace SheetDataTool
 {
-	public record Setting
+	public sealed record Setting
 	{
 		public Notation InputNotation { get; init; } = Notation.Pascal;
 		public Notation OutputNotation { get; init; } = Notation.Pascal;

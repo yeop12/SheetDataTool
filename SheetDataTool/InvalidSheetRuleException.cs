@@ -1,6 +1,6 @@
 ﻿namespace SheetDataTool
 {
-	public class InvalidSheetRuleException : Exception
+	public sealed class InvalidSheetRuleException : Exception
 	{
 		public int? Row { get; }
 		public int? Column { get; }

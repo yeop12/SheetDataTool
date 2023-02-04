@@ -3,7 +3,7 @@
 namespace SheetDataTool
 {
 	[AttributeUsage(AttributeTargets.Property)]
-	internal class ContentsElementItemDescriptionAttribute : Attribute
+	internal sealed class ContentsElementItemDescriptionAttribute : Attribute
 	{
 		public string Name { get; }
 		public bool IsEssential { get; }

@@ -3,7 +3,7 @@
 namespace SheetDataTool
 {
 	[ContentsDescription("Constant", false)]
-	internal class ConstantContents : ElementCodeContents<ConstantContents.Element>
+	internal sealed class ConstantContents : ElementCodeContents<ConstantContents.Element>
 	{
 		internal record Element()
 		{

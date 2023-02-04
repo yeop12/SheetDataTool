@@ -1,7 +1,7 @@
 ﻿namespace SheetDataTool
 {
 	[AttributeUsage(AttributeTargets.Class)]
-	internal class ContentsDescriptionAttribute : Attribute
+	internal sealed class ContentsDescriptionAttribute : Attribute
 	{
 		public string Name { get; }
 		public bool CanRegisterMultiple { get; }

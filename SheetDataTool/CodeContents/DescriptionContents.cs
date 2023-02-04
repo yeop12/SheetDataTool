@@ -3,7 +3,7 @@
 namespace SheetDataTool
 {
 	[ContentsDescription("Description", false)]
-	internal class DescriptionContents : CodeContents
+	internal sealed class DescriptionContents : CodeContents
 	{
 		private readonly string _description;
 
