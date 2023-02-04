@@ -1,4 +1,5 @@
 ﻿using ExcelSheetTool;
+using SheetDataTool;
 
 #if DEBUG
 var arguments = Console.ReadLine()!.Split();
@@ -31,25 +32,63 @@ try
 	switch (command)
 	{
 		case Command.PrintSheetNames:
+		{
 			var sheetNames = ExcelSheetUtil.GetSheetNames(path);
 			Console.Write("Sheet names : ");
 			Console.WriteLine(string.Join(',', sheetNames));
+		}
 			break;
 
 		case Command.PrintSheet:
-			if (arguments.Length < 1) 
+		{
+			if (arguments.Length < 1)
 			{
 				Console.WriteLine($"{nameof(Command.PrintSheet)} must be contain sheet name as third value.");
 				return;
 			}
+
 			var sheetName = arguments[2];
 			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
 			Console.WriteLine("Sheet info");
 			Console.WriteLine(sheetInfo);
+		}
+			break;
+
+		case Command.PrintContentsData:
+		{
+			if (arguments.Length < 1)
+			{
+				Console.WriteLine($"{nameof(Command.PrintSheet)} must be contain sheet name as third value.");
+				return;
+			}
+
+			var sheetName = arguments[2];
+			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
+			var setting = new Setting();
+			var contentsData = new ContentsData(sheetInfo, setting);
+			Console.WriteLine("Contents data");
+			Console.Write(contentsData);
+		}
 			break;
 
 		default:
 			throw new ArgumentOutOfRangeException();
+	}
+}
+catch (InvalidSheetRuleException e)
+{
+	Console.WriteLine(e);
+	if (e.Row is not null && e.Column is not null)
+	{
+		Console.WriteLine($"Reference : {ExcelSheetUtil.GetReference(e.Row.Value, e.Column.Value)}");
+	}
+	else if (e.Row is not null)
+	{
+		Console.WriteLine($"Row reference : {ExcelSheetUtil.GetRowReference(e.Row.Value)}");
+	}
+	else if (e.Column is not null)
+	{
+		Console.WriteLine($"Column Reference : {ExcelSheetUtil.GetColumnReference(e.Column.Value)}");
 	}
 }
 catch (Exception e) 
@@ -61,4 +100,5 @@ public enum Command
 {
 	PrintSheetNames,
 	PrintSheet,
+	PrintContentsData,
 }
