@@ -69,7 +69,7 @@ namespace SheetDataTool
 
 		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting)
 		{
-			sb.WriteLine($"public {KeyType} Key => {KeyName.ChangeNotation(setting.InputNotation, setting.ScriptDesignPublicPropertyNameNotation)};");
+			sb.WriteLine($"public {KeyType} {"Key".ChangeNotation(Notation.Pascal, setting.ScriptDesignPublicPropertyNameNotation)} => {KeyName.ChangeNotation(setting.InputNotation, setting.ScriptDesignPublicPropertyNameNotation)};");
 			sb.WriteLine();
 			Elements.ForEach(x => x.WriteScript(sb, setting));
 		}

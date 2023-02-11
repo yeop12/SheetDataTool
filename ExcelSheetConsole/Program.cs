@@ -67,7 +67,7 @@ try
 			var setting = new Setting();
 			var contentsData = new ContentsData(sheetInfo, setting);
 			Console.WriteLine("Contents data");
-			Console.Write(contentsData);
+			Console.WriteLine(contentsData);
 		}
 			break;
 
@@ -84,7 +84,62 @@ try
 			var setting = new Setting();
 			var contentsData = new ContentsData(sheetInfo, setting);
 			Console.WriteLine("Script");
-			Console.Write(contentsData.GetScript());
+			Console.WriteLine(contentsData.GetScript());
+		}
+			break;
+
+		case Command.CompileScript:
+		{
+			if (arguments.Length < 1)
+			{
+				Console.WriteLine($"{nameof(Command.CompileScript)} must be contain sheet name as third value.");
+				return;
+			}
+
+			var sheetName = arguments[2];
+			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
+			var setting = new Setting();
+			var contentsData = new ContentsData(sheetInfo, setting);
+			contentsData.CompileScript();
+			Console.WriteLine("Compilation success.");
+		}
+			break;
+
+		case Command.PrintSheetDataInterfaceScript:
+		{
+			if (arguments.Length < 1)
+			{
+				Console.WriteLine($"{nameof(Command.PrintSheetDataInterfaceScript)} must be contain sheet name as third value.");
+				return;
+			}
+
+			var sheetName = arguments[2];
+			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
+			var setting = new Setting();
+			var contentsData = new ContentsData(sheetInfo, setting);
+			Console.WriteLine(contentsData.GetSheetDataInterfaceScript());
+		}
+			break;
+
+		case Command.PrintSheetDataScript:
+		{
+			if (arguments.Length < 1)
+			{
+				Console.WriteLine($"{nameof(Command.PrintSheetDataScript)} must be contain sheet name as third value.");
+				return;
+			}
+
+			var sheetName = arguments[2];
+			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
+			var setting = new Setting();
+			var contentsData = new ContentsData(sheetInfo, setting);
+			Console.WriteLine(contentsData.GetSheetDataRecordScript());
+		}
+			break;
+
+		case Command.PrintUnityTypeScript:
+		{
+			Console.WriteLine(ContentsData.GetUnityTypeScript());
 		}
 			break;
 
@@ -119,4 +174,8 @@ public enum Command
 	PrintSheet,
 	PrintContentsData,
 	PrintScript,
+	CompileScript,
+	PrintSheetDataInterfaceScript,
+	PrintSheetDataScript,
+	PrintUnityTypeScript,
 }

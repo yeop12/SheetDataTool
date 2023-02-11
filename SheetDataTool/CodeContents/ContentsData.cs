@@ -90,7 +90,7 @@ namespace SheetDataTool
 				var inheritedInterfaceNames = designContents?.InheritedInterfaceNames
 					?.Select(x => $"{_setting.ScriptInterfaceNamePrefix}{x.ChangeNotation(_setting.InputNotation, _setting.ScriptInterfaceNameNotation)}")
 					.Aggregate((x, y) => $"{x}, {y}");
-				var declare = $"public partial record {sheetName} : SheetData<{keyTypeName}, {sheetName}>, ISheetData<{keyTypeName}>{(inheritedInterfaceNames is null ? "" : $", {inheritedInterfaceNames}")}";
+				var declare = $"public partial record {sheetName} : {GetSheetDataRecordName()}<{keyTypeName}, {sheetName}>, {GetSheetDataInterfaceName()}<{keyTypeName}>{(inheritedInterfaceNames is null ? "" : $", {inheritedInterfaceNames}")}";
 				using (sb.StartScope(declare))
 				{
 					WriteContents<EnumContents>(false);
@@ -103,18 +103,134 @@ namespace SheetDataTool
 			return sb.ToString();
 		}
 
-		private static void WriteUsingNamespaces( ScopedStringBuilder sb )
+		private void WriteUsingNamespaces( ScopedStringBuilder sb )
 		{
-			var items = new List<string>
+			var basicItems = new List<string>
 			{
 				"System",
 				"System.Collections",
 				"System.Collections.Generic",
 				"Newtonsoft.Json",
-				"UnityEngine"
 			};
-			items.ForEach(x => sb.WriteLine($"using {x};"));
+			basicItems.ForEach(x => sb.WriteLine($"using {x};"));
+			var unityItems = new List<string>
+			{
+				"UnityEngine",
+			};
+			sb.WriteLine($"#if {_setting.UnityPlatformDefine}");
+			unityItems.ForEach(x => sb.WriteLine($"using {x};"));
+			sb.WriteLine("#endif");
 			sb.WriteLine();
+		}
+
+		public Assembly CompileScript()
+		{
+			const string assemblyName = "TempLib";
+			var script = new []
+			{
+				GetScript(),
+				GetSheetDataInterfaceScript(),
+				GetSheetDataRecordScript(),
+				GetUnityTypeScript(),
+			};
+			return CompileUtil.Compile(assemblyName, script);
+		}
+
+		private string GetSheetDataInterfaceName() =>
+			$"{_setting.ScriptInterfaceNamePrefix}{"SheetData".ChangeNotation(Notation.Pascal, _setting.ScriptInterfaceNameNotation)}";
+
+		public string GetSheetDataInterfaceScript()
+		{
+			var sb = new ScopedStringBuilder();
+
+			var namespaceScope = string.IsNullOrWhiteSpace(_setting.NamespaceName)
+				? null : sb.StartScope($"namespace {_setting.NamespaceName}");
+
+			using (sb.StartScope($"public interface {GetSheetDataInterfaceName()}<out T>"))
+			{
+				sb.WriteLine($"public T {"Key".ChangeNotation(Notation.Pascal, _setting.ScriptDesignPublicPropertyNameNotation)} {{ get; }}");
+			}
+
+			namespaceScope?.Dispose();
+			return sb.ToString();
+		}
+
+		private string GetSheetDataRecordName() =>
+			"SheetData".ChangeNotation(Notation.Pascal, _setting.ScriptDesignNameNotation);
+
+		public string GetSheetDataRecordScript()
+		{
+			var sb = new ScopedStringBuilder();
+			sb.WriteLine("using System;");
+			sb.WriteLine("using System.Collections.Generic;");
+			sb.WriteLine("using System.Linq;");
+			sb.WriteLine("using Newtonsoft.Json;");
+			sb.WriteLine($"#if {_setting.UnityPlatformDefine}");
+			sb.WriteLine("using Cysharp.Threading.Tasks;");
+			sb.WriteLine("using UnityEngine;");
+			sb.WriteLine("using UnityEngine.AddressableAssets;");
+			sb.WriteLine("#endif");
+			sb.WriteLine();
+
+			var namespaceScope = string.IsNullOrWhiteSpace(_setting.NamespaceName)
+				? null : sb.StartScope($"namespace {_setting.NamespaceName}");
+
+			using (sb.StartScope($"public abstract record {GetSheetDataRecordName()}<TKey, TValue> where TValue : {GetSheetDataRecordName()}<TKey, TValue>, {GetSheetDataInterfaceName()}<TKey>"))
+			{
+				sb.WriteLine($"public const string {"DefaultDirectory".ChangeNotation(Notation.Pascal, _setting.ScriptDesignPublicPropertyNameNotation)} = \"{_setting.DefaultDirectory}\";");
+				sb.WriteLine();
+
+				var dataPrivateName = $"{_setting.ScriptDesignPrivatePropertyNamePrefix}{"data".ChangeNotation(Notation.Camel, _setting.ScriptDesignPrivatePropertyNameNotation)}";
+				sb.WriteLine($"private static Dictionary<TKey, TValue> {dataPrivateName};");
+				sb.WriteLine($"public static IEnumerable<TValue> {"Data".ChangeNotation(Notation.Pascal, _setting.ScriptDesignPublicPropertyNameNotation)} => {dataPrivateName}?.Values ?? Enumerable.Empty<TValue>();");
+			}
+
+			namespaceScope?.Dispose();
+			return sb.ToString();
+		}
+
+		public static string GetUnityTypeScript()
+		{
+			var sb = new ScopedStringBuilder();
+			using (sb.StartScope("public record Vector2"))
+			{
+				sb.WriteLine("public float x { get; init; }");
+				sb.WriteLine("public float y { get; init; }");
+			}
+			sb.WriteLine();
+			
+			using (sb.StartScope("public record Vector3"))
+			{
+				sb.WriteLine("public float x { get; init; }");
+				sb.WriteLine("public float y { get; init; }");
+				sb.WriteLine("public float z { get; init; }");
+			}
+			sb.WriteLine();
+			
+			using (sb.StartScope("public record Vector2Int"))
+			{
+				sb.WriteLine("public int x { get; init; }");
+				sb.WriteLine("public int y { get; init; }");
+			}
+			sb.WriteLine();
+			
+			using (sb.StartScope("public record Vector3Int"))
+			{
+				sb.WriteLine("public int x { get; init; }");
+				sb.WriteLine("public int y { get; init; }");
+				sb.WriteLine("public int z { get; init; }");
+			}
+			sb.WriteLine();
+			
+			using (sb.StartScope("public record Color"))
+			{
+				sb.WriteLine("public int r { get; init; }");
+				sb.WriteLine("public int g { get; init; }");
+				sb.WriteLine("public int b { get; init; }");
+				sb.WriteLine("public int a { get; init; }");
+			}
+
+			return sb.ToString();
 		}
 
 		public override string ToString()

@@ -17,6 +17,8 @@
 		public char IgnoreLineSymbol { get; init; } = ';';
 		public string EnumDefaultType { get; init; } = "int";
 		public string NamespaceName { get; init; } = "Sheet";
+		public string DefaultDirectory { get; init; } = "SheetData";
+		public string UnityPlatformDefine { get; init; } = "UNITY_2019_4_OR_NEWER";
 
 		public bool IsIgnoreCell(string? cell) => string.IsNullOrWhiteSpace(cell) || cell.StartsWith(IgnoreLineSymbol);
 	}
