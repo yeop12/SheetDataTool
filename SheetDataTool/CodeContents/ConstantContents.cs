@@ -19,6 +19,16 @@ namespace SheetDataTool
 			[ContentsElementItemDescription(false)]
 			public string? Comment { get; init; }
 
+			public void WriteScript(ScopedStringBuilder sb, Setting setting)
+			{
+				if (Comment is not null)
+				{
+					sb.WriteLine($"/// <summary> {Comment} </summary>");
+				}
+				sb.WriteLine($"public static {Type} {Name.ChangeNotation(setting.InputNotation, setting.ScriptConstantPropertyNameNotation)} {{ get; private set; }}");
+				sb.WriteLine();
+			}
+
 			public override string ToString()
 			{
 				return $"Name : {Name}, Type : {Type}, Value : {Value}, Comment : {Comment ?? "null"}";
@@ -27,6 +37,12 @@ namespace SheetDataTool
 
 		public ConstantContents(SheetInfoView sheetInfoView, Setting setting) : base(sheetInfoView, setting)
 		{
+		}
+
+		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting)
+		{
+			Elements.ForEach(x => x.WriteScript(sb, setting));
+			sb.WriteLine();
 		}
 
 		public override string ToString()

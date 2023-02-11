@@ -5,6 +5,8 @@ namespace SheetDataTool
 	public sealed class ContentsData
 	{
 		private readonly List<CodeContents> _contents = new();
+		private readonly SheetInfo _sheetInfo;
+		private readonly Setting _setting;
 
 		public ContentsData(SheetInfo sheetInfo, Setting setting)
 		{
@@ -55,6 +57,64 @@ namespace SheetDataTool
 
 				row = endRow;
 			}
+
+			_sheetInfo = sheetInfo;
+			_setting = setting;
+		}
+
+		public string GetScript()
+		{
+			var sb = new ScopedStringBuilder();
+
+			void WriteContents<T>( bool isGlobal ) where T : CodeContents
+				=> _contents.OfType<T>().ForEach(x => x.WriteScript(sb, isGlobal, _setting));
+			
+			var designContents = _contents.OfType<DesignContents>().FirstOrDefault();
+			var sheetName = _sheetInfo.Name.ChangeNotation(_setting.InputNotation, _setting.ScriptDesignNameNotation);
+			var keyTypeName = designContents?.KeyType;
+
+			WriteUsingNamespaces(sb);
+
+			var namespaceScope = string.IsNullOrWhiteSpace(_setting.NamespaceName)
+				? null : sb.StartScope($"namespace {_setting.NamespaceName}");
+
+			WriteContents<EnumContents>(true);
+			WriteContents<RecordContents>(true);
+			WriteContents<InterfaceContents>(true);
+
+			var hasDesignContents = designContents is not null;
+			if (hasDesignContents)
+			{
+				WriteContents<DescriptionContents>(true);
+
+				var inheritedInterfaceNames = designContents?.InheritedInterfaceNames
+					?.Select(x => $"{_setting.ScriptInterfaceNamePrefix}{x.ChangeNotation(_setting.InputNotation, _setting.ScriptInterfaceNameNotation)}")
+					.Aggregate((x, y) => $"{x}, {y}");
+				var declare = $"public partial record {sheetName} : SheetData<{keyTypeName}, {sheetName}>, ISheetData<{keyTypeName}>{(inheritedInterfaceNames is null ? "" : $", {inheritedInterfaceNames}")}";
+				using (sb.StartScope(declare))
+				{
+					WriteContents<EnumContents>(false);
+					WriteContents<RecordContents>(false);
+					WriteContents<ConstantContents>(false);
+					WriteContents<DesignContents>(false);
+				}
+			}
+			namespaceScope?.Dispose();
+			return sb.ToString();
+		}
+
+		private static void WriteUsingNamespaces( ScopedStringBuilder sb )
+		{
+			var items = new List<string>
+			{
+				"System",
+				"System.Collections",
+				"System.Collections.Generic",
+				"Newtonsoft.Json",
+				"UnityEngine"
+			};
+			items.ForEach(x => sb.WriteLine($"using {x};"));
+			sb.WriteLine();
 		}
 
 		public override string ToString()

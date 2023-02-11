@@ -24,6 +24,8 @@
 			ColumnCount = endColumn - startColumn + 1;
 		}
 
+		public string? GetDataOrDefault(int row, int column) =>
+			_sheetInfo.GetDataOrDefault(row + _startRow, column + _startColumn);
 		public int GetRealRow(int row) => _startRow + row;
 		public int GetRealColumn(int column) => _startColumn + column;
 	}

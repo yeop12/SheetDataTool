@@ -58,7 +58,7 @@ try
 		{
 			if (arguments.Length < 1)
 			{
-				Console.WriteLine($"{nameof(Command.PrintSheet)} must be contain sheet name as third value.");
+				Console.WriteLine($"{nameof(Command.PrintContentsData)} must be contain sheet name as third value.");
 				return;
 			}
 
@@ -68,6 +68,23 @@ try
 			var contentsData = new ContentsData(sheetInfo, setting);
 			Console.WriteLine("Contents data");
 			Console.Write(contentsData);
+		}
+			break;
+
+		case Command.PrintScript:
+		{
+			if (arguments.Length < 1)
+			{
+				Console.WriteLine($"{nameof(Command.PrintScript)} must be contain sheet name as third value.");
+				return;
+			}
+
+			var sheetName = arguments[2];
+			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
+			var setting = new Setting();
+			var contentsData = new ContentsData(sheetInfo, setting);
+			Console.WriteLine("Script");
+			Console.Write(contentsData.GetScript());
 		}
 			break;
 
@@ -101,4 +118,5 @@ public enum Command
 	PrintSheetNames,
 	PrintSheet,
 	PrintContentsData,
+	PrintScript,
 }

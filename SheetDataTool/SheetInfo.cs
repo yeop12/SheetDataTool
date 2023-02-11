@@ -18,9 +18,15 @@ namespace SheetDataTool
 			_data = data;
 		}
 
+		public string? GetDataOrDefault(int row, int column)
+		{
+			if (row < 0 || row >= RowCount || column < 0 || column >= ColumnCount) return null;
+			return _data[row, column];
+		}
+
 		public int FindRow( int startRow, int column, Predicate<string?> match )
 		{
-			if (startRow < 0 || startRow >= RowCount) throw new ArgumentOutOfRangeException(nameof(startRow));
+			if (startRow < 0) throw new ArgumentOutOfRangeException(nameof(startRow));
 			if (column < 0 || column >= ColumnCount) throw new ArgumentOutOfRangeException(nameof(column));
 			if (match is null) throw new ArgumentNullException(nameof(match));
 			

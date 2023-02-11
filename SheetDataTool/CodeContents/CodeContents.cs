@@ -25,6 +25,25 @@ namespace SheetDataTool
 			return flagCell.Split(OptionSeparators, StringSplitOptions.RemoveEmptyEntries).ToList();
 		}
 
+		protected static string GetName(SheetInfoView sheetInfoView)
+		{
+			return sheetInfoView[0, 1] ?? throw new InvalidSheetRuleException("NamedCodeContents second cell must not be null.", sheetInfoView.GetRealRow(0), sheetInfoView.GetRealColumn(1));
+		}
+
+		protected static string? GetSummary(SheetInfoView sheetInfoView)
+		{
+			return sheetInfoView.GetDataOrDefault(0, 2);
+		}
+
+		protected static void WriteSummary(string? summary, ScopedStringBuilder sb)
+		{
+			if (summary is null) return;
+
+			sb.WriteLine("/// <summary>");
+			sb.WriteLine($"/// {summary}");
+			sb.WriteLine("/// </summary>");
+		}
+
 		protected List<string> Options { get; }
 
 		protected CodeContents( SheetInfoView sheetInfoView, Setting setting )
@@ -32,6 +51,8 @@ namespace SheetDataTool
 			Options = GetOptions(sheetInfoView);
 		}
 
-		protected bool HasOption(string optionName, Setting setting) => Options.Contains(optionName.ChangeNotation(Notation.Pascal, setting.InputNotation));
+		protected bool HasOption(string optionName, Setting? setting = null) => Options.Contains(setting is null ? optionName : optionName.ChangeNotation(Notation.Pascal, setting.InputNotation));
+
+		public abstract void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting);
 	}
 }
