@@ -12,7 +12,7 @@ namespace SheetDataTool
 			_description = sheetInfoView[1, 0] ?? throw new InvalidSheetRuleException($"Description contents must be contain value at next row cell.", sheetInfoView.GetRealRow(1), sheetInfoView.GetRealColumn(0));
 		}
 
-		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting)
+		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting, bool madeForSerialization)
 		{
 			sb.WriteLine("/// <summary>");
 			sb.WriteLine($"/// {_description}");

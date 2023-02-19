@@ -2,7 +2,8 @@
 using SheetDataTool;
 
 #if DEBUG
-var arguments = Console.ReadLine()!.Split();
+//var arguments = Console.ReadLine()!.Split();
+var arguments = @"PrintSerializedObject C:\Users\YEOP\Desktop\SheetDataTool_Sample.xlsx Sample".Split();
 #else
 var arguments = args;
 #endif
@@ -83,8 +84,7 @@ try
 			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
 			var setting = new Setting();
 			var contentsData = new ContentsData(sheetInfo, setting);
-			Console.WriteLine("Script");
-			Console.WriteLine(contentsData.GetScript());
+			Console.WriteLine(contentsData.GetScript(false));
 		}
 			break;
 
@@ -105,41 +105,55 @@ try
 		}
 			break;
 
-		case Command.PrintSheetDataInterfaceScript:
+		case Command.PrintBaseScript:
 		{
-			if (arguments.Length < 1)
-			{
-				Console.WriteLine($"{nameof(Command.PrintSheetDataInterfaceScript)} must be contain sheet name as third value.");
-				return;
-			}
-
-			var sheetName = arguments[2];
-			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
-			var setting = new Setting();
-			var contentsData = new ContentsData(sheetInfo, setting);
-			Console.WriteLine(contentsData.GetSheetDataInterfaceScript());
+			Console.WriteLine(ScriptUtil.GetBaseClassScript(new Setting()));
 		}
 			break;
 
-		case Command.PrintSheetDataScript:
+		case Command.PrintDesignInterfaceScript:
 		{
-			if (arguments.Length < 1)
-			{
-				Console.WriteLine($"{nameof(Command.PrintSheetDataScript)} must be contain sheet name as third value.");
-				return;
-			}
+			Console.WriteLine(ScriptUtil.GetDesignInterfaceScript(new Setting()));
+		}
+			break;
 
-			var sheetName = arguments[2];
-			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
-			var setting = new Setting();
-			var contentsData = new ContentsData(sheetInfo, setting);
-			Console.WriteLine(contentsData.GetSheetDataRecordScript());
+		case Command.PrintDesignClassScript:
+		{
+			Console.WriteLine(ScriptUtil.GetDesignClassScript(new Setting()));
+		}
+			break;
+
+		case Command.PrintConstantClassScript:
+		{
+			Console.WriteLine(ScriptUtil.GetConstantClassScript(new Setting()));
+		}
+			break;
+
+		case Command.PrintFullClassScript:
+		{
+			Console.WriteLine(ScriptUtil.GetFullClassScript(new Setting()));
 		}
 			break;
 
 		case Command.PrintUnityTypeScript:
 		{
-			Console.WriteLine(ContentsData.GetUnityTypeScript());
+			Console.WriteLine(ScriptUtil.GetUnityTypeScript());
+		}
+			break;
+
+		case Command.PrintSerializedObject:
+		{
+			if (arguments.Length < 1)
+			{
+				Console.WriteLine($"{nameof(Command.PrintSerializedObject)} must be contain sheet name as third value.");
+				return;
+			}
+
+			var sheetName = arguments[2];
+			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
+			var setting = new Setting();
+			var contentsData = new ContentsData(sheetInfo, setting);
+			Console.WriteLine(contentsData.Serialize());
 		}
 			break;
 
@@ -175,7 +189,11 @@ public enum Command
 	PrintContentsData,
 	PrintScript,
 	CompileScript,
-	PrintSheetDataInterfaceScript,
-	PrintSheetDataScript,
+	PrintBaseScript,
+	PrintDesignInterfaceScript,
+	PrintDesignClassScript,
+	PrintConstantClassScript,
+	PrintFullClassScript,
 	PrintUnityTypeScript,
+	PrintSerializedObject,
 }

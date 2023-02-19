@@ -53,6 +53,6 @@ namespace SheetDataTool
 
 		protected bool HasOption(string optionName, Setting? setting = null) => Options.Contains(setting is null ? optionName : optionName.ChangeNotation(Notation.Pascal, setting.InputNotation));
 
-		public abstract void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting);
+		public abstract void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting, bool madeForSerialization);
 	}
 }

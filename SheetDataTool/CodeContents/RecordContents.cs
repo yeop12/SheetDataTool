@@ -44,7 +44,7 @@ namespace SheetDataTool
 			_summary = GetSummary(sheetInfoView);
 		}
 
-		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting)
+		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting, bool madeForSerialization )
 		{
 			if (_isGlobal != isGlobal)
 			{

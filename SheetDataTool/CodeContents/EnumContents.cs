@@ -54,7 +54,7 @@ namespace SheetDataTool
 			_summary = GetSummary(sheetInfoView);
 		}
 
-		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting)
+		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting, bool madeForSerialization)
 		{
 			if (_isGlobal != isGlobal)
 			{
@@ -62,6 +62,7 @@ namespace SheetDataTool
 			}
 
 			WriteSummary(_summary, sb);
+			sb.WriteLine("[JsonConverter(typeof(StringEnumConverter))]");
 			using (sb.StartScope($"public enum {_name.ChangeNotation(setting.InputNotation, setting.ScriptEnumNameNotation)} : {_type}"))
 			{
 				Elements.ForEach(x => x.WriteScript(sb, setting));

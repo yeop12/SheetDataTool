@@ -14,7 +14,7 @@ namespace SheetDataTool
 			_summary = GetSummary(sheetInfoView);
 		}
 
-		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting)
+		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting, bool madeForSerialization )
 		{
 			WriteSummary(_summary, sb);
 			using (sb.StartScope($"public partial interface {setting.ScriptInterfaceNamePrefix}{_name.ChangeNotation(setting.InputNotation, setting.ScriptInterfaceNameNotation)}"))

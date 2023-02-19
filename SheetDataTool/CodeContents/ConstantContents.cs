@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace SheetDataTool
 {
@@ -19,14 +21,53 @@ namespace SheetDataTool
 			[ContentsElementItemDescription(false)]
 			public string? Comment { get; init; }
 
-			public void WriteScript(ScopedStringBuilder sb, Setting setting)
+			public void WriteScript(ScopedStringBuilder sb, Setting setting, bool madeForSerialization )
 			{
+				var privateItemName = $"{setting.ScriptPrivateVariableNamePrefix}{Name.ChangeNotation(setting.InputNotation, setting.ScriptPrivateVariableNameNotation)}";
+				var publicItemName = Name.ChangeNotation(setting.InputNotation, setting.ScriptPublicVariableNameNotation);
+
+				if (madeForSerialization)
+				{
+					sb.WriteLine($"public static bool ShouldSerialize{privateItemName}() => _serializeDesign is false;");
+				}
+
+				sb.WriteLine($"[JsonProperty(nameof({publicItemName}))]");
+				sb.WriteLine($"private static {Type} {privateItemName} {{ get; set; }}");
+				sb.WriteLine();
+
 				if (Comment is not null)
 				{
 					sb.WriteLine($"/// <summary> {Comment} </summary>");
 				}
-				sb.WriteLine($"public static {Type} {Name.ChangeNotation(setting.InputNotation, setting.ScriptConstantPropertyNameNotation)} {{ get; private set; }}");
+				sb.WriteLine("[JsonIgnore]");
+				using (sb.StartScope($"public static {Type} {publicItemName}"))
+				{
+					using (sb.StartScope("get"))
+					{
+						var loadFunctionName =
+							"LoadData".ChangeNotation(Notation.Pascal, setting.ScriptFunctionNameNotation);
+						sb.WriteLine($"if(IsLoaded is false) {loadFunctionName}();");
+						sb.WriteLine($"return {privateItemName};");
+					}
+				}
 				sb.WriteLine();
+			}
+
+			public void SetData(object obj, Setting setting) 
+			{
+				var privateItemName = $"{setting.ScriptPrivateVariableNamePrefix}{Name.ChangeNotation(setting.InputNotation, setting.ScriptPrivateVariableNameNotation)}";
+				var propertyInfo = obj.GetType().GetProperty(privateItemName, BindingFlags.Static | BindingFlags.GetProperty | BindingFlags.NonPublic);
+				if (propertyInfo is null) throw new Exception($"{obj.GetType()} type does not contain {privateItemName} property.");
+				if (TypeUtil.IsBasicType(Type))
+				{
+					var value = TypeUtil.ChangeType(Value, propertyInfo.PropertyType);
+					propertyInfo.SetValue(obj, value);
+				}
+				else
+				{
+					var value = JsonConvert.DeserializeObject(Value, propertyInfo.PropertyType);
+					propertyInfo.SetValue(obj, value);
+				}
 			}
 
 			public override string ToString()
@@ -39,10 +80,15 @@ namespace SheetDataTool
 		{
 		}
 
-		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting)
+		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting, bool madeForSerialization)
 		{
-			Elements.ForEach(x => x.WriteScript(sb, setting));
+			Elements.ForEach(x => x.WriteScript(sb, setting, madeForSerialization));
 			sb.WriteLine();
+		}
+
+		public void SetData(object obj, Setting setting)
+		{
+			Elements.ForEach(x => x.SetData(obj, setting));
 		}
 
 		public override string ToString()

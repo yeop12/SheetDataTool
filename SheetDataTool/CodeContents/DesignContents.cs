@@ -19,8 +19,11 @@ namespace SheetDataTool
 			[ContentsElementItemDescription(false)]
 			public string? Comment { get; init; }
 
-			public void WriteScript(ScopedStringBuilder sb, Setting setting)
+			public void WriteScript(ScopedStringBuilder sb, Setting setting, bool madeForSerialization )
 			{
+				var publicName = Name.ChangeNotation(setting.InputNotation, setting.ScriptPublicVariableNameNotation);
+				var privateName = $"{setting.ScriptPrivateVariableNamePrefix}{Name.ChangeNotation(setting.InputNotation, setting.ScriptPrivateVariableNameNotation)}";
+				
 				if (Comment is not null)
 				{
 					sb.WriteLine($"/// <summary> {Comment} </summary>");
@@ -28,17 +31,26 @@ namespace SheetDataTool
 				
 				if (Type.StartsWith("List"))
 				{
-					var publicName = Name.ChangeNotation(setting.InputNotation, setting.ScriptDesignPublicPropertyNameNotation);
-					var privateName = $"{setting.ScriptDesignPrivatePropertyNamePrefix}{Name.ChangeNotation(setting.InputNotation, setting.ScriptDesignPrivatePropertyNameNotation)}";
 					sb.WriteLine($"[JsonProperty(nameof({publicName}))]");
 					sb.WriteLine($"public {Type} {privateName} {{ get; init; }}");
 					sb.WriteLine();
+
+					if (madeForSerialization)
+					{
+						sb.WriteLine($"public bool ShouldSerialize{privateName}() => _serializeDesign;");
+					}
+
 					sb.WriteLine("[JsonIgnore]");
 					sb.WriteLine($"public {Type.Replace("List", "IReadOnlyList")} {publicName} => {privateName};");
 				}
 				else
 				{
-					sb.WriteLine($"public {Type} {Name.ChangeNotation(setting.InputNotation, setting.ScriptDesignPublicPropertyNameNotation)} {{ get; init; }}");
+					sb.WriteLine($"public {Type} {publicName} {{ get; init; }}");
+
+					if (madeForSerialization)
+					{
+						sb.WriteLine($"public bool ShouldSerialize{publicName}() => _serializeDesign;");
+					}
 				}
 
 				sb.WriteLine();
@@ -64,14 +76,15 @@ namespace SheetDataTool
 				? primaryKeyElements.First().Name 
 				: $"({primaryKeyElements.Select(x => x.Name).Aggregate(( x, y ) => $"{x}, {y}")})";
 			InheritedInterfaceNames = sheetInfoView[0, 1]?.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
-				.Select(x => x.ChangeNotation(setting.InputNotation, setting.ScriptDesignNameNotation)).ToList();
+				.Select(x => x.ChangeNotation(setting.InputNotation, setting.ScriptClassNameNotation)).ToList();
 		}
 
-		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting)
+		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting, bool madeForSerialization )
 		{
-			sb.WriteLine($"public {KeyType} {"Key".ChangeNotation(Notation.Pascal, setting.ScriptDesignPublicPropertyNameNotation)} => {KeyName.ChangeNotation(setting.InputNotation, setting.ScriptDesignPublicPropertyNameNotation)};");
+			sb.WriteLine("[JsonIgnore]");
+			sb.WriteLine($"public {KeyType} {"Key".ChangeNotation(Notation.Pascal, setting.ScriptPublicVariableNameNotation)} => {KeyName.ChangeNotation(setting.InputNotation, setting.ScriptPublicVariableNameNotation)};");
 			sb.WriteLine();
-			Elements.ForEach(x => x.WriteScript(sb, setting));
+			Elements.ForEach(x => x.WriteScript(sb, setting, madeForSerialization));
 		}
 
 		public override string ToString()
