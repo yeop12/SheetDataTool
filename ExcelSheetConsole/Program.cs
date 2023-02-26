@@ -1,9 +1,7 @@
-﻿using ExcelSheetTool;
-using SheetDataTool;
+﻿using SheetDataTool;
 
 #if DEBUG
-//var arguments = Console.ReadLine()!.Split();
-var arguments = @"PrintSerializedObject C:\Users\YEOP\Desktop\SheetDataTool_Sample.xlsx Sample".Split();
+var arguments = Console.ReadLine()!.Split();
 #else
 var arguments = args;
 #endif
@@ -28,15 +26,16 @@ if (arguments.Length < 1)
 
 var path = arguments[1];
 
+var sheetUtil = new ExcelSheetUtil(path);
+
 try
 {
 	switch (command)
 	{
 		case Command.PrintSheetNames:
 		{
-			var sheetNames = ExcelSheetUtil.GetSheetNames(path);
 			Console.Write("Sheet names : ");
-			Console.WriteLine(string.Join(',', sheetNames));
+			Console.WriteLine(string.Join(',', sheetUtil.GetSheetNames()));
 		}
 			break;
 
@@ -49,7 +48,7 @@ try
 			}
 
 			var sheetName = arguments[2];
-			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
+			var sheetInfo = sheetUtil.GetSheetInfo(sheetName);
 			Console.WriteLine("Sheet info");
 			Console.WriteLine(sheetInfo);
 		}
@@ -64,7 +63,7 @@ try
 			}
 
 			var sheetName = arguments[2];
-			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
+			var sheetInfo = sheetUtil.GetSheetInfo(sheetName);
 			var setting = new Setting();
 			var contentsData = new ContentsData(sheetInfo, setting);
 			Console.WriteLine("Contents data");
@@ -81,7 +80,7 @@ try
 			}
 
 			var sheetName = arguments[2];
-			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
+			var sheetInfo = sheetUtil.GetSheetInfo(sheetName);
 			var setting = new Setting();
 			var contentsData = new ContentsData(sheetInfo, setting);
 			Console.WriteLine(contentsData.GetScript(false));
@@ -97,10 +96,22 @@ try
 			}
 
 			var sheetName = arguments[2];
-			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
+			var sheetInfo = sheetUtil.GetSheetInfo(sheetName);
 			var setting = new Setting();
 			var contentsData = new ContentsData(sheetInfo, setting);
-			contentsData.CompileScript();
+			const string assemblyName = "TempLib";
+			var scripts = new[]
+			{
+				contentsData.GetScript(true),
+				ScriptUtil.GetBaseClassScript(setting),
+				ScriptUtil.GetDesignInterfaceScript(setting),
+				ScriptUtil.GetDesignClassScript(setting),
+				ScriptUtil.GetConstantClassScript(setting),
+				ScriptUtil.GetFullClassScript(setting),
+				ScriptUtil.GetExcelDataNotFoundExceptionScript(setting),
+				ScriptUtil.GetUnityTypeScript(),
+			};
+			CompileUtil.Compile(assemblyName, scripts);
 			Console.WriteLine("Compilation success.");
 		}
 			break;
@@ -150,10 +161,23 @@ try
 			}
 
 			var sheetName = arguments[2];
-			var sheetInfo = ExcelSheetUtil.GetSheetInfo(path, sheetName);
+			var sheetInfo = sheetUtil.GetSheetInfo(sheetName);
 			var setting = new Setting();
 			var contentsData = new ContentsData(sheetInfo, setting);
-			Console.WriteLine(contentsData.Serialize());
+			const string assemblyName = "TempLib";
+			var scripts = new[]
+			{
+				contentsData.GetScript(true),
+				ScriptUtil.GetBaseClassScript(setting),
+				ScriptUtil.GetDesignInterfaceScript(setting),
+				ScriptUtil.GetDesignClassScript(setting),
+				ScriptUtil.GetConstantClassScript(setting),
+				ScriptUtil.GetFullClassScript(setting),
+				ScriptUtil.GetExcelDataNotFoundExceptionScript(setting),
+				ScriptUtil.GetUnityTypeScript(),
+			};
+			var assembly = CompileUtil.Compile(assemblyName, scripts);
+			Console.WriteLine(contentsData.Serialize(assembly));
 		}
 			break;
 
@@ -166,15 +190,15 @@ catch (InvalidSheetRuleException e)
 	Console.WriteLine(e);
 	if (e.Row is not null && e.Column is not null)
 	{
-		Console.WriteLine($"Reference : {ExcelSheetUtil.GetReference(e.Row.Value, e.Column.Value)}");
+		Console.WriteLine($"Reference : {ReferenceUtil.GetReference(e.Row.Value, e.Column.Value)}");
 	}
 	else if (e.Row is not null)
 	{
-		Console.WriteLine($"Row reference : {ExcelSheetUtil.GetRowReference(e.Row.Value)}");
+		Console.WriteLine($"Row reference : {ReferenceUtil.GetRowReference(e.Row.Value)}");
 	}
 	else if (e.Column is not null)
 	{
-		Console.WriteLine($"Column Reference : {ExcelSheetUtil.GetColumnReference(e.Column.Value)}");
+		Console.WriteLine($"Column Reference : {ReferenceUtil.GetColumnReference(e.Column.Value)}");
 	}
 }
 catch (Exception e) 

@@ -1,16 +1,25 @@
-﻿using System.Reflection;
-using System.Runtime.Loader;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Newtonsoft.Json;
 
 namespace SheetDataTool
 {
-	internal static class CompileUtil
+	public static class CompileUtil
 	{
 		public static Assembly Compile( string assemblyName, params string[] scripts )
 		{
 			var syntaxTrees = scripts.Select(x => CSharpSyntaxTree.ParseText(x));
+			var runtimeAssembly = AppDomain.CurrentDomain.GetAssemblies()
+				.First(assembly => assembly.GetName().Name == "System.Runtime");
+			var dotNetStandardAssembly = AppDomain.CurrentDomain.GetAssemblies()
+				.First(assembly => assembly.GetName().Name == "netstandard");
+
 			var refPaths = new[] 
 			{
 				typeof(object).GetTypeInfo().Assembly.Location,
@@ -18,7 +27,8 @@ namespace SheetDataTool
 				typeof(Task).GetTypeInfo().Assembly.Location,
 				typeof(Enumerable).GetTypeInfo().Assembly.Location,
 				typeof(JsonConvert).GetTypeInfo().Assembly.Location,
-				Path.Combine(Path.GetDirectoryName(typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.Location) ?? string.Empty, "System.Runtime.dll")
+				runtimeAssembly.Location,
+				dotNetStandardAssembly.Location,
 			};
 			var references = refPaths.Select(r => MetadataReference.CreateFromFile(r)).ToArray();
 			var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
@@ -32,7 +42,7 @@ namespace SheetDataTool
 				throw new Exception($"Compilation failed.{string.Join('\n', result.Diagnostics)}");
 			}
 			ms.Seek(0, SeekOrigin.Begin);
-			var assembly = AssemblyLoadContext.Default.LoadFromStream(ms);
+			var assembly = Assembly.Load(ms.ToArray());
 			return assembly;
 		}
 	}

@@ -1,4 +1,6 @@
-﻿namespace SheetDataTool
+﻿using System;
+
+namespace SheetDataTool
 {
 	public sealed class InvalidSheetRuleException : Exception
 	{

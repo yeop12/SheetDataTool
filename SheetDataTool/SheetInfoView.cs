@@ -1,4 +1,6 @@
-﻿namespace SheetDataTool
+﻿using System;
+
+namespace SheetDataTool
 {
 	internal sealed class SheetInfoView
 	{

@@ -1,30 +1,42 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using SheetDataTool;
 
-namespace ExcelSheetTool
+namespace SheetDataTool
 {
-	public static class ExcelSheetUtil
+	public class ExcelSheetUtil : SheetUtil
 	{
-		public static IEnumerable<string> GetSheetNames(string path)
-		{
-			using var document = SpreadsheetDocument.Open(path, false);
-			var wbPart = document.WorkbookPart;
-			if (wbPart is null)
-			{
-				return Enumerable.Empty<string>();
-			}
+		private readonly Dictionary<string, string> _pathBySheetName = new();
 
-			var sheets = wbPart.Workbook.Sheets;
-			return sheets is null
-				? Enumerable.Empty<string>()
-				: sheets.Cast<Sheet>().Select(x => x.Name?.Value ?? string.Empty);
+		public ExcelSheetUtil(string path)
+		{
+			var fileNames = Directory.GetFiles(path, "*.xlsx");
+			
+			foreach (var fileName in fileNames)
+			{
+				using var document = SpreadsheetDocument.Open(fileName, false);
+				var wbPart = document.WorkbookPart;
+				var sheets = wbPart?.Workbook.Sheets;
+				if (sheets is null) continue;
+
+				var sheetNames = sheets.Cast<Sheet>().Where(x => x.Name?.Value is not null).Select(x => x.Name?.Value!).ToList();
+
+				sheetNames.ForEach(x => _pathBySheetName.Add(x, fileName));
+			}
 		}
 
-		public static SheetInfo GetSheetInfo(string path, string sheetName)
+		public IEnumerable<string> GetSheetNames() => _pathBySheetName.Keys;
+
+		public SheetInfo GetSheetInfo(string sheetName)
 		{
+			if (_pathBySheetName.TryGetValue(sheetName, out var path) is false)
+			{
+				throw new Exception($"{sheetName} does not exist.");
+			}
+
 			using var document = SpreadsheetDocument.Open(path, false);
 			var workbookPart = document.WorkbookPart;
 			if (workbookPart is null)
@@ -47,7 +59,7 @@ namespace ExcelSheetTool
 				.FirstOrDefault()?.SharedStringTable.ToList();
 
 			var worksheet = worksheetPart.Worksheet;
-			var sheetLastReference = ParseReference(worksheet.SheetDimension!.Reference!.Value!.Split(':').Last());
+			var sheetLastReference = ReferenceUtil.ParseReference(worksheet.SheetDimension!.Reference!.Value!.Split(':').Last());
 			var cellData = new string[sheetLastReference.rowIndex + 1, sheetLastReference.columnIndex + 1];
 
 			var sheetData = worksheet.Elements<SheetData>().First();
@@ -102,51 +114,12 @@ namespace ExcelSheetTool
 						}
 					}
 
-					var reference = ParseReference(cell.CellReference!.Value!);
+					var reference = ReferenceUtil.ParseReference(cell.CellReference!.Value!);
 					cellData[reference.rowIndex, reference.columnIndex] = value;
 				}
 			}
 
 			return new SheetInfo(sheetName, cellData);
-		}
-
-		private static (int rowIndex, int columnIndex) ParseReference( string text ) 
-		{
-			if (text == null) 
-			{
-				throw new ArgumentNullException(nameof(text));
-			}
-
-			var match = Regex.Match(text, @"([a-zA-Z]+)(\d+)");
-			if (!match.Success) 
-			{
-				throw new FormatException(nameof(text));
-			}
-
-			var columnText = match.Groups[1].Value;
-			var rowText = match.Groups[2].Value;
-			var row = int.Parse(rowText);
-			const int alphabetCount = 'Z' - 'A' + 1;
-			var column = columnText.Aggregate(0, ( current, t ) => ( current * alphabetCount ) + ( (int)t - 'A' + 1 ));
-			return (row - 1, column - 1);
-		}
-
-		public static string GetReference(int row, int column) => $"{GetColumnReference(column)}{GetRowReference(row)}";
-
-		public static string GetRowReference(int row) => $"{row + 1}";
-
-		public static string GetColumnReference(int column)
-		{
-			var result = new StringBuilder();
-			const int alphabetCount = 'Z' - 'A' + 1;
-			do
-			{
-				var alphabet = (char)('A' + (column % alphabetCount));
-				result.Append(alphabet);
-				column /= alphabetCount;
-			} while (column != 0);
-
-			return new string(result.ToString().Reverse().ToArray());
 		}
 	}
 }

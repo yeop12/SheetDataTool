@@ -231,6 +231,8 @@
 			return sb.ToString();
 		}
 
+		public static string GetExcelDataNotFoundExceptionName(Setting setting) => "ExcelDataNotFoundException".ChangeNotation(Notation.Pascal, setting.ScriptClassNameNotation);
+
 		public static string GetExcelDataNotFoundExceptionScript(Setting setting)
 		{
 			var sb = new ScopedStringBuilder();
@@ -241,7 +243,7 @@
 			var namespaceScope = string.IsNullOrWhiteSpace(setting.NamespaceName)
 				? null : sb.StartScope($"namespace {setting.NamespaceName}");
 
-			var className = "ExcelDataNotFoundException".ChangeNotation(Notation.Pascal, setting.ScriptClassNameNotation);
+			var className = GetExcelDataNotFoundExceptionName(setting);
 			using (sb.StartScope($"public class {className}<T> : Exception"))
 			{
 				var keyName = "Key".ChangeNotation(Notation.Pascal, setting.ScriptPublicVariableNameNotation);
@@ -254,6 +256,18 @@
 			}
 
 			namespaceScope?.Dispose();
+			return sb.ToString();
+		}
+
+		public static string GetExternalInitName() => "IsExternalInit";
+
+		public static string GetExternalInitScript(Setting setting)
+		{
+			var sb = new ScopedStringBuilder();
+			using (sb.StartScope("namespace System.Runtime.CompilerServices"))
+			{
+				using (sb.StartScope($"public sealed class {GetExternalInitName()}")) ;
+			}
 			return sb.ToString();
 		}
 

@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 
@@ -156,23 +159,6 @@ namespace SheetDataTool
 			if (hasConstant) return ScriptType.Constant;
 			if(hasDesign) return ScriptType.Design;
 			return ScriptType.None;
-		}
-
-		public Assembly CompileScript()
-		{
-			const string assemblyName = "TempLib";
-			var script = new []
-			{
-				GetScript(true),
-				ScriptUtil.GetBaseClassScript(_setting),
-				ScriptUtil.GetDesignInterfaceScript(_setting),
-				ScriptUtil.GetDesignClassScript(_setting),
-				ScriptUtil.GetConstantClassScript(_setting),
-				ScriptUtil.GetFullClassScript(_setting),
-				ScriptUtil.GetExcelDataNotFoundExceptionScript(_setting),
-				ScriptUtil.GetUnityTypeScript(),
-			};
-			return CompileUtil.Compile(assemblyName, script);
 		}
 
 		private abstract class AccessInfo
@@ -378,9 +364,8 @@ namespace SheetDataTool
 			propertyInfo.SetValue(null, value);
 		}
 
-		public string Serialize()
+		public string Serialize(Assembly assembly)
 		{
-			var assembly = CompileScript();
 			var sheetTypeName =
 				_sheetInfo.Name.ChangeNotation(_setting.InputNotation, _setting.ScriptClassNameNotation);
 			var sheetType = assembly.GetType($"{_setting.NamespaceName ?? ""}.{sheetTypeName}")!;
@@ -396,7 +381,7 @@ namespace SheetDataTool
 				var constantJson = JsonConvert.SerializeObject(constantObject, Formatting.Indented);
 				SetSerializeDesign(sheetType, true);
 				var designJson = JsonConvert.SerializeObject(designObject, Formatting.Indented);
-				return $"{{\n\"constant\" : \n{constantJson},\n\"design\" : \n{designJson}\n}}";
+				return $"{{\n\"item1\" : \n{constantJson},\n\"item2\" : \n{designJson}\n}}";
 			}
 			if (hasConstant) return JsonConvert.SerializeObject(constantObject, Formatting.Indented);
 			if (hasDesign) return JsonConvert.SerializeObject(designObject, Formatting.Indented);

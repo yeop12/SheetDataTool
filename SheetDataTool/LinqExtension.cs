@@ -1,4 +1,7 @@
-﻿namespace SheetDataTool
+﻿using System;
+using System.Collections.Generic;
+
+namespace SheetDataTool
 {
 	internal static class LinqExtension
 	{

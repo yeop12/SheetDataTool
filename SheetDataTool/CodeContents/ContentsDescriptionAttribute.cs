@@ -1,4 +1,6 @@
-﻿namespace SheetDataTool
+﻿using System;
+
+namespace SheetDataTool
 {
 	[AttributeUsage(AttributeTargets.Class)]
 	internal sealed class ContentsDescriptionAttribute : Attribute
