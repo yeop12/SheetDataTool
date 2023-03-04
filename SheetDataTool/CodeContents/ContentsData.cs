@@ -312,7 +312,7 @@ namespace SheetDataTool
 				{
 					var target = item;
 					var cell = _sheetInfo[row, column];
-					if (cell is null)
+					if (string.IsNullOrWhiteSpace(cell))
 					{
 						var isListItem = accessInfos.Any(x =>
 							x.OutputType.IsGenericType && x.OutputType.GetGenericTypeDefinition() == typeof(List<>));
