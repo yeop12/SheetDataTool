@@ -35,7 +35,7 @@ namespace SheetDataTool
 				if (Type.StartsWith("List"))
 				{
 					sb.WriteLine($"[JsonProperty(nameof({publicName}))]");
-					sb.WriteLine($"public {Type} {privateName} {{ get; init; }}");
+					sb.WriteLine($"private {Type} {privateName} {{ get; init; }}");
 					sb.WriteLine();
 
 					if (madeForSerialization)
