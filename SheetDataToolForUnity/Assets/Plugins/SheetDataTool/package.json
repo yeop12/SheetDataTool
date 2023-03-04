@@ -1,6 +1,6 @@
 {
   "name": "com.nybot.sheetdatatool",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "SheetDataTool",
   "description": "Provides easy data processing and use for Google Sheets and Excel Sheets in Unity.",
   "unity": "2019.1",
