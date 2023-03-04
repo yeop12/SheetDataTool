@@ -233,7 +233,7 @@ namespace SheetDataTool
 				{
 					propertyName = @$"{setting.ScriptPrivateVariableNamePrefix}{value.ChangeNotation(setting.InputNotation,
 						setting.ScriptPrivateVariableNameNotation)}";
-					_propertyInfo = parentType.GetProperty(propertyName) ?? throw new Exception("Property does not exist.");
+					_propertyInfo = parentType.GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Instance) ?? throw new Exception("Property does not exist.");
 				}
 				
 				OutputType = _propertyInfo.PropertyType;
@@ -383,8 +383,17 @@ namespace SheetDataTool
 				var designJson = JsonConvert.SerializeObject(designObject, Formatting.Indented);
 				return $"{{\n\"item1\" : \n{constantJson},\n\"item2\" : \n{designJson}\n}}";
 			}
-			if (hasConstant) return JsonConvert.SerializeObject(constantObject, Formatting.Indented);
-			if (hasDesign) return JsonConvert.SerializeObject(designObject, Formatting.Indented);
+
+			if (hasConstant) {
+				SetSerializeDesign(sheetType, false);
+				return JsonConvert.SerializeObject(constantObject, Formatting.Indented);
+			}
+
+			if (hasDesign)
+			{
+				SetSerializeDesign(sheetType, true);
+				return JsonConvert.SerializeObject(designObject, Formatting.Indented);
+			}
 			return string.Empty;
 		}
 
