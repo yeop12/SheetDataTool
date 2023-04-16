@@ -349,7 +349,7 @@ namespace SheetDataTool
 			var useSearch = string.IsNullOrWhiteSpace(_searchText) is false;
 			var lowerSearchText = _searchText?.ToLower();
 
-			EditorGUILayout.BeginScrollView(_scrollPosition);
+			_scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 			foreach (var sheetName in _sheetUtil.GetSheetNames())
 			{
 				if (useSearch && sheetName.ToLower().Contains(lowerSearchText!) is false)
