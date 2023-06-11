@@ -20,6 +20,10 @@ namespace SheetDataTool
 		private readonly List<CodeContents> _contents = new();
 		private readonly SheetInfo _sheetInfo;
 		private readonly Setting _setting;
+
+		public bool HasDataFile =>
+			GetScriptType(_contents.OfType<ConstantContents>().Any(), _contents.OfType<DesignContents>().Any()) is
+				ScriptType.Design or ScriptType.Full;
 		
 		public ContentsData(SheetInfo sheetInfo, Setting setting)
 		{

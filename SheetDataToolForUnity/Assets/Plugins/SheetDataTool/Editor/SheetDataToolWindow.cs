@@ -364,11 +364,14 @@ namespace SheetDataTool
 					{
 						var sheetInfo = _sheetUtil.GetSheetInfo(sheetName);
 						var contentsData = new ContentsData(sheetInfo, _setting);
-						var assembly = MakeAssembly(contentsData.GetScript(true), $"{_scriptPath}\\{sheetName}.cs");
 						var script = contentsData.GetScript(false);
 						File.WriteAllText($"{_scriptPath}/{sheetName}.cs", script);
-						var json = contentsData.Serialize(assembly);
-						File.WriteAllText($"{_dataPath}/{sheetName}.json", json);
+						if (contentsData.HasDataFile)
+						{
+							var assembly = MakeAssembly(contentsData.GetScript(true), $"{_scriptPath}\\{sheetName}.cs");
+							var json = contentsData.Serialize(assembly);
+							File.WriteAllText($"{_dataPath}/{sheetName}.json", json);
+						}
 					}
 					catch (Exception e)
 					{
@@ -382,9 +385,12 @@ namespace SheetDataTool
 					{
 						var sheetInfo = _sheetUtil.GetSheetInfo(sheetName);
 						var contentsData = new ContentsData(sheetInfo, _setting);
-						var assembly = MakeAssembly(contentsData.GetScript(true), $"{_scriptPath}\\{sheetName}.cs");
-						var json = contentsData.Serialize(assembly);
-						File.WriteAllText($"{_dataPath}/{sheetName}.json", json);
+						if (contentsData.HasDataFile)
+						{
+							var assembly = MakeAssembly(contentsData.GetScript(true), $"{_scriptPath}\\{sheetName}.cs");
+							var json = contentsData.Serialize(assembly);
+							File.WriteAllText($"{_dataPath}/{sheetName}.json", json);
+						}
 					}
 					catch (Exception e)
 					{
