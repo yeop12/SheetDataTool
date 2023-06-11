@@ -411,7 +411,7 @@ namespace SheetDataTool
 
 			if (GUILayout.Button("Refresh"))
 			{
-				_sheetUtil = new GoogleSheetUtil(_accessInfo.OAuthFilePath, _accessInfo.SheetID);
+				_sheetUtil.RefreshSheetList();
 			}
 		}
 

@@ -9,23 +9,13 @@ namespace SheetDataTool
 {
 	public class ExcelSheetUtil : SheetUtil
 	{
+		private readonly string _path;
 		private readonly Dictionary<string, string> _pathBySheetName = new();
 
 		public ExcelSheetUtil(string path)
 		{
-			var fileNames = Directory.GetFiles(path, "*.xlsx");
-			
-			foreach (var fileName in fileNames)
-			{
-				using var document = SpreadsheetDocument.Open(fileName, false);
-				var wbPart = document.WorkbookPart;
-				var sheets = wbPart?.Workbook.Sheets;
-				if (sheets is null) continue;
-
-				var sheetNames = sheets.Cast<Sheet>().Where(x => x.Name?.Value is not null).Select(x => x.Name?.Value!).ToList();
-
-				sheetNames.ForEach(x => _pathBySheetName.Add(x, fileName));
-			}
+			_path = path;
+			RefreshSheetList();
 		}
 
 		public IEnumerable<string> GetSheetNames() => _pathBySheetName.Keys;
@@ -120,6 +110,25 @@ namespace SheetDataTool
 			}
 
 			return new SheetInfo(sheetName, cellData);
+		}
+
+		public void RefreshSheetList()
+		{
+			var fileNames = Directory.GetFiles(_path, "*.xlsx");
+
+			_pathBySheetName.Clear();
+
+			foreach (var fileName in fileNames) 
+			{
+				using var document = SpreadsheetDocument.Open(fileName, false);
+				var wbPart = document.WorkbookPart;
+				var sheets = wbPart?.Workbook.Sheets;
+				if (sheets is null) continue;
+
+				var sheetNames = sheets.Cast<Sheet>().Where(x => x.Name?.Value is not null).Select(x => x.Name?.Value!).ToList();
+
+				sheetNames.ForEach(x => _pathBySheetName.Add(x, fileName));
+			}
 		}
 	}
 }

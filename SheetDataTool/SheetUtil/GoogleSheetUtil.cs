@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
@@ -11,7 +10,7 @@ namespace SheetDataTool
 {
 	public class GoogleSheetUtil : SheetUtil
 	{
-		private readonly IList<Sheet> _sheets;
+		private IList<Sheet> _sheets;
 		private readonly SheetsService _service;
 		private readonly string _spreadSheetID;
 
@@ -27,9 +26,8 @@ namespace SheetDataTool
 				ApplicationName = applicationName,
 			});
 
-			var spreadSheet = _service.Spreadsheets.Get(spreadSheetID).Execute();
-			_sheets = spreadSheet.Sheets;
 			_spreadSheetID = spreadSheetID;
+			RefreshSheetList();
 		}
 
 		public GoogleSheetUtil( Stream oauthStream, string spreadSheetID)
@@ -69,6 +67,12 @@ namespace SheetDataTool
 			}
 
 			return new SheetInfo(sheetName, data);
+		}
+
+		public void RefreshSheetList()
+		{
+			var spreadSheet = _service.Spreadsheets.Get(_spreadSheetID).Execute();
+			_sheets = spreadSheet.Sheets;
 		}
 	}
 }
