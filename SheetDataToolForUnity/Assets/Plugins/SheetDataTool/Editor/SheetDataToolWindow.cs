@@ -408,6 +408,11 @@ namespace SheetDataTool
 			{
 				_mode = Mode.Util;
 			}
+
+			if (GUILayout.Button("Refresh"))
+			{
+				_sheetUtil = new GoogleSheetUtil(_accessInfo.OAuthFilePath, _accessInfo.SheetID);
+			}
 		}
 
 		private Assembly MakeAssembly(string script, string ignoreFileName)
