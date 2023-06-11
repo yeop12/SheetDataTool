@@ -274,6 +274,7 @@ namespace SheetDataTool
 			_setting.DefaultDirectory = EditorGUILayout.TextField("Default directory", _setting.DefaultDirectory);
 			_setting.NamespaceName = EditorGUILayout.TextField("Namespace name", _setting.NamespaceName);
 			_setting.UnityPlatformDefine = EditorGUILayout.TextField("Unity platform define", _setting.UnityPlatformDefine);
+			_setting.UnityHelperNamespaceName = EditorGUILayout.TextField("Unity helper namespace name", _setting.UnityHelperNamespaceName);
 			EditorGUILayout.EndVertical();
 			--EditorGUI.indentLevel;
 

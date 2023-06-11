@@ -93,7 +93,7 @@ namespace SheetDataTool
 			var keyTypeName = designContents?.KeyType;
 			var sheetName = _sheetInfo.Name.ChangeNotation(_setting.InputNotation, _setting.ScriptClassNameNotation);
 
-			WriteUsingNamespaces(sb);
+			WriteUsingNamespaces(sb, madeForSerialization);
 
 			var namespaceScope = string.IsNullOrWhiteSpace(_setting.NamespaceName)
 				? null : sb.StartScope($"namespace {_setting.NamespaceName}");
@@ -136,7 +136,7 @@ namespace SheetDataTool
 			return sb.ToString();
 		}
 
-		private void WriteUsingNamespaces( ScopedStringBuilder sb )
+		private void WriteUsingNamespaces( ScopedStringBuilder sb, bool madeForSerialization )
 		{
 			var basicItems = new List<string>
 			{
@@ -153,6 +153,11 @@ namespace SheetDataTool
 			};
 			sb.WriteLine($"#if {_setting.UnityPlatformDefine}");
 			unityItems.ForEach(x => sb.WriteLine($"using {x};"));
+			if (madeForSerialization is false)
+			{
+				sb.WriteLine("#else");
+				sb.WriteLine($"using {_setting.UnityHelperNamespaceName};");
+			}
 			sb.WriteLine("#endif");
 			sb.WriteLine();
 		}

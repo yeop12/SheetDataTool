@@ -21,6 +21,7 @@ namespace SheetDataTool
 		public string NamespaceName { get; set; } = "Sheet";
 		public string DefaultDirectory { get; set; } = "SheetData";
 		public string UnityPlatformDefine { get; set; } = "UNITY_2019_4_OR_NEWER";
+		public string UnityHelperNamespaceName { get; set; } = "UnityHelper";
 
 		public bool IsIgnoreCell([NotNullWhen(false)]string? cell) => string.IsNullOrWhiteSpace(cell) || cell.StartsWith(IgnoreLineSymbol);
 	}
