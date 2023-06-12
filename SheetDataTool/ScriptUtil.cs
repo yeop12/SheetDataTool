@@ -304,9 +304,7 @@ namespace SheetDataTool
 					sb.WriteLine("var (_ ,data) = JsonConvert.DeserializeObject<(TValue, List<TValue>)>(json);");
 					using (sb.StartScope("if(data is null)"))
 					{
-						sb.WriteLine("Debug.LogError($\"{typeof(TValue).Name} does not loaded.\");");
-						sb.WriteLine($"{dataPrivateName} = new Dictionary<TKey, TValue>();");
-						sb.WriteLine("return;");
+						sb.WriteLine("throw new Exception($\"{typeof(TValue).Name} does not loaded.\");");
 					}
 					var keyName = "Key".ChangeNotation(Notation.Pascal, setting.ScriptPublicVariableNameNotation);
 					sb.WriteLine($"{dataPrivateName} = data.ToDictionary(x => x.{keyName}, x => x);");

@@ -22,8 +22,7 @@ namespace SheetDataTool
 		private readonly Setting _setting;
 
 		public bool HasDataFile =>
-			GetScriptType(_contents.OfType<ConstantContents>().Any(), _contents.OfType<DesignContents>().Any()) is
-				ScriptType.Design or ScriptType.Full;
+			GetScriptType(_contents.OfType<ConstantContents>().Any(), _contents.OfType<DesignContents>().Any()) is not ScriptType.None;
 		
 		public ContentsData(SheetInfo sheetInfo, Setting setting)
 		{
