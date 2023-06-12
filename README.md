@@ -72,7 +72,7 @@ Design sub items
 /// <summary>
 /// Item table
 /// </summary>
-public sealed partial record Temp : DesignSheetDataHelper<int, Temp>, IDesignSheetData<int>
+public sealed partial record Item : DesignSheetDataHelper<int, Item>, IDesignSheetData<int>
 {
 	[JsonIgnore]
 	public int Key => Id;
@@ -159,7 +159,7 @@ Next, let's use a nullable type. Add the usage period to the item table, and use
 /// <summary>
 /// Item table
 /// </summary>
-public sealed partial record Temp : DesignSheetDataHelper<int, Temp>, IDesignSheetData<int>
+public sealed partial record Item : DesignSheetDataHelper<int, Item>, IDesignSheetData<int>
 {
 	[JsonIgnore]
 	public int Key => Id;
@@ -259,7 +259,7 @@ public enum ItemType : int
 /// <summary>
 /// Item table
 /// </summary>
-public sealed partial record Temp : DesignSheetDataHelper<int, Temp>, IDesignSheetData<int>
+public sealed partial record Item : DesignSheetDataHelper<int, Item>, IDesignSheetData<int>
 {
 	[JsonIgnore]
 	public int Key => Id;
@@ -341,7 +341,7 @@ To use a list, declare it as List<T> when the desired type is T, and write the i
 /// <summary>
 /// Item table
 /// </summary>
-public sealed partial record Temp : DesignSheetDataHelper<int, Temp>, IDesignSheetData<int>
+public sealed partial record Item : DesignSheetDataHelper<int, Item>, IDesignSheetData<int>
 {
 	[JsonIgnore]
 	public int Key => Id;
@@ -458,7 +458,7 @@ public partial record ImageInfo
 /// <summary>
 /// Item table
 /// </summary>
-public sealed partial record Temp : DesignSheetDataHelper<int, Temp>, IDesignSheetData<int>
+public sealed partial record Item : DesignSheetDataHelper<int, Item>, IDesignSheetData<int>
 {
 	[JsonIgnore]
 	public int Key => Id;
@@ -576,7 +576,7 @@ Next, we define the maximum number of items we can have as a constant.
 /// <summary>
 /// Item table
 /// </summary>
-public sealed partial record Temp : FullSheetDataHelper<int, Temp>, IDesignSheetData<int>
+public sealed partial record Item : FullSheetDataHelper<int, Item>, IDesignSheetData<int>
 {
 	[JsonProperty(nameof(MaxItemCount))]
 	private static int _maxItemCount { get; set; }
