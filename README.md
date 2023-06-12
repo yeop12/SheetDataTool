@@ -676,11 +676,8 @@ Update later.
 # Unity Guide
 ## Generate goolge sheet aouth token
 
-## Set up window setting
-	
-1. Open SheetDataTool window(Window -> SheetDataTool)
-
-	
+## Set up window setting  
+1. Open SheetDataTool window(Window -> SheetDataTool)  
 ![image](https://github.com/yeop12/SheetDataTool/assets/11326612/1045edfb-bd5b-4060-87dd-522c3574026a)
 
 2. Write access info
@@ -706,7 +703,30 @@ ed : export only json file(when data structure not changed.)
 5. Generate default script  
 Create a basic script for using the sheet data tool.  
 ![image](https://github.com/yeop12/SheetDataTool/assets/11326612/01cf0131-807a-4946-aa5b-8588b316853e)  
+  
+## How to use  
+```
+// 1. Find member by key
+var key = 1;
+var item = Item.Find(key);
 
+// 2. Find member by condition
+var item = Item.Find(x => x.Name == "Sword");
+	
+// 3. Find members by condition
+var items = Item.FindAll(x => x.Type == ItemType.Potion);
+	
+// 4. Call all items
+foreach(var item in Item.Data)
+{
+	// something...
+}
+var items = Item.Data.Where(x => x.Type == ItemType.Potion); // same way as 3
+
+// 5. Call constant value
+var maxItemCount = Item.MaxItemCount;
+```
+	
 # Release Notes
 ## Version 1.0.1
 * Bug fixes
