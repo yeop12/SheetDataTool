@@ -93,7 +93,7 @@ namespace SheetDataTool
 			var keyTypeName = designContents?.KeyType;
 			var sheetName = _sheetInfo.Name.ChangeNotation(_setting.InputNotation, _setting.ScriptClassNameNotation);
 
-			WriteUsingNamespaces(sb, madeForSerialization);
+			WriteUsingNamespaces(sb);
 
 			var namespaceScope = string.IsNullOrWhiteSpace(_setting.NamespaceName)
 				? null : sb.StartScope($"namespace {_setting.NamespaceName}");
@@ -136,7 +136,7 @@ namespace SheetDataTool
 			return sb.ToString();
 		}
 
-		private void WriteUsingNamespaces( ScopedStringBuilder sb, bool madeForSerialization )
+		private void WriteUsingNamespaces(ScopedStringBuilder sb)
 		{
 			var basicItems = new List<string>
 			{
@@ -147,18 +147,14 @@ namespace SheetDataTool
 				"Newtonsoft.Json.Converters",
 			};
 			basicItems.ForEach(x => sb.WriteLine($"using {x};"));
-			var unityItems = new List<string>
+
+			foreach (var platformInfo in _setting.PlatformInfos)
 			{
-				"UnityEngine",
-			};
-			sb.WriteLine($"#if {_setting.UnityPlatformDefine}");
-			unityItems.ForEach(x => sb.WriteLine($"using {x};"));
-			if (madeForSerialization is false)
-			{
-				sb.WriteLine("#else");
-				sb.WriteLine($"using {_setting.UnityHelperNamespaceName};");
+				sb.WriteLine($"#if {platformInfo.DefineName}");
+				platformInfo.NamespaceNames.ForEach(x => sb.WriteLine($"using {x};"));
+				sb.WriteLine($"#endif");
 			}
-			sb.WriteLine("#endif");
+
 			sb.WriteLine();
 		}
 

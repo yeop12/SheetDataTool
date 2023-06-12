@@ -196,8 +196,9 @@ namespace SheetDataTool
 			}
 		}
 
-		private void DrawSetting() 
+		private void DrawSetting()
 		{
+			_scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 			EditorGUILayout.LabelField("Setting", new GUIStyle() { fontSize = 20, normal = new GUIStyleState() { textColor = Color.white } });
 			EditorGUILayout.Separator();
 
@@ -271,10 +272,55 @@ namespace SheetDataTool
 			EditorGUILayout.LabelField("ETC");
 			++EditorGUI.indentLevel;
 			EditorGUILayout.BeginVertical("Box");
-			_setting.DefaultDirectory = EditorGUILayout.TextField("Default directory", _setting.DefaultDirectory);
 			_setting.NamespaceName = EditorGUILayout.TextField("Namespace name", _setting.NamespaceName);
-			_setting.UnityPlatformDefine = EditorGUILayout.TextField("Unity platform define", _setting.UnityPlatformDefine);
-			_setting.UnityHelperNamespaceName = EditorGUILayout.TextField("Unity helper namespace name", _setting.UnityHelperNamespaceName);
+			EditorGUILayout.LabelField("Platforms");
+			foreach (var platformInfo in _setting.PlatformInfos)
+			{
+				++EditorGUI.indentLevel;
+				EditorGUILayout.BeginVertical("Box");
+				EditorGUILayout.BeginHorizontal();
+				EditorGUILayout.LabelField("Platform");
+				if (GUILayout.Button("X", GUILayout.MaxWidth(30)))
+				{
+					_setting.PlatformInfos.Remove(platformInfo);
+					GUIUtility.ExitGUI();
+					return;
+				}
+
+				EditorGUILayout.EndHorizontal();
+				platformInfo.Platform = (Platform)EditorGUILayout.EnumPopup("Platform", platformInfo.Platform);
+				platformInfo.DefaultDirectory = EditorGUILayout.TextField("Default directory", platformInfo.DefaultDirectory);
+				platformInfo.DefineName = EditorGUILayout.TextField("Define name", platformInfo.DefineName);
+				EditorGUILayout.LabelField("Namespace names");
+				++EditorGUI.indentLevel;
+				EditorGUILayout.BeginVertical("Box");
+				for (var i = 0; i < platformInfo.NamespaceNames.Count; ++i)
+				{
+					EditorGUILayout.BeginHorizontal();
+					platformInfo.NamespaceNames[i] = EditorGUILayout.TextField(platformInfo.NamespaceNames[i]);
+					if (GUILayout.Button("X", GUILayout.MaxWidth(30)))
+					{
+						platformInfo.NamespaceNames.RemoveAt(i);
+						GUIUtility.ExitGUI();
+						return;
+					}
+					EditorGUILayout.EndHorizontal();
+				}
+
+				if (GUILayout.Button("Add namespace name"))
+				{
+					platformInfo.NamespaceNames.Add(string.Empty);
+				}
+				EditorGUILayout.EndVertical();
+				--EditorGUI.indentLevel;
+
+				EditorGUILayout.EndVertical();
+				--EditorGUI.indentLevel;
+			}
+			if (GUILayout.Button("Add Platform"))
+			{
+				_setting.PlatformInfos.Add(new PlatformInfo());
+			}
 			EditorGUILayout.EndVertical();
 			--EditorGUI.indentLevel;
 
@@ -338,6 +384,7 @@ namespace SheetDataTool
 			{
 				_mode = Mode.SheetList;
 			}
+			EditorGUILayout.EndScrollView();
 		}
 
 		private void DrawSheetList()
@@ -359,7 +406,7 @@ namespace SheetDataTool
 				}
 				EditorGUILayout.BeginHorizontal("Box");
 				EditorGUILayout.LabelField(sheetName);
-				if (GUILayout.Button("Change schema"))
+				if (GUILayout.Button("CS", GUILayout.Width(30)))
 				{
 					try
 					{
@@ -373,6 +420,7 @@ namespace SheetDataTool
 							var json = contentsData.Serialize(assembly);
 							File.WriteAllText($"{_dataPath}/{sheetName}.json", json);
 						}
+						AssetDatabase.Refresh(ImportAssetOptions.Default);
 					}
 					catch (Exception e)
 					{
@@ -380,7 +428,7 @@ namespace SheetDataTool
 					}
 				}
 
-				if (GUILayout.Button("Export Data"))
+				if (GUILayout.Button("ED", GUILayout.Width(30)))
 				{
 					try
 					{
@@ -392,6 +440,7 @@ namespace SheetDataTool
 							var json = contentsData.Serialize(assembly);
 							File.WriteAllText($"{_dataPath}/{sheetName}.json", json);
 						}
+						AssetDatabase.Refresh(ImportAssetOptions.Default);
 					}
 					catch (Exception e)
 					{
@@ -443,42 +492,49 @@ namespace SheetDataTool
 			{
 				var script = ScriptUtil.GetBaseClassScript(_setting);
 				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetBaseClassName(_setting)}.cs", script);
+				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
 			if (GUILayout.Button("Design interface")) 
 			{
 				var script = ScriptUtil.GetDesignInterfaceScript(_setting);
 				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetDesignInterfaceName(_setting)}.cs", script);
+				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
 			if (GUILayout.Button("Design class"))
 			{
 				var script = ScriptUtil.GetDesignClassScript(_setting);
 				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetDesignClassName(_setting)}.cs", script);
+				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
 			if (GUILayout.Button("Constant class"))
 			{
 				var script = ScriptUtil.GetConstantClassScript(_setting);
 				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetConstantClassName(_setting)}.cs", script);
+				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
 			if (GUILayout.Button("Full class"))
 			{
 				var script = ScriptUtil.GetFullClassScript(_setting);
 				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetFullClassName(_setting)}.cs", script);
+				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
 			if (GUILayout.Button("ExcelDataNotFoundException class"))
 			{
 				var script = ScriptUtil.GetExcelDataNotFoundExceptionScript(_setting);
 				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetExcelDataNotFoundExceptionName(_setting)}.cs", script);
+				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
 			if (GUILayout.Button("External init class"))
 			{
 				var script = ScriptUtil.GetExternalInitScript(_setting);
 				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetExternalInitName()}.cs", script);
+				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
 			if (GUILayout.Button("Back"))

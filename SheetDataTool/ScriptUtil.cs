@@ -1,4 +1,6 @@
-﻿namespace SheetDataTool
+﻿using System;
+
+namespace SheetDataTool
 {
 	public static class ScriptUtil
 	{
@@ -13,7 +15,23 @@
 
 			using (sb.StartScope($"public abstract record {GetBaseClassName(setting)}"))
 			{
-				sb.WriteLine($"protected static readonly string DefaultDirectory = \"{setting.DefaultDirectory}\";");
+				var isFirst = true;
+				foreach (var platformInfo in setting.PlatformInfos)
+				{
+					if (isFirst)
+					{
+						sb.WriteLine($"#if {platformInfo.DefineName}");
+						isFirst = false;
+					}
+					else
+					{
+						sb.WriteLine($"#elif {platformInfo.DefineName}");
+					}
+					sb.WriteLine($"protected static readonly string DefaultDirectory = \"{platformInfo.DefaultDirectory}\";");
+				}
+				sb.WriteLine("#else");
+				sb.WriteLine($"protected static readonly string DefaultDirectory = string.Empty;");
+				sb.WriteLine("#endif");
 			}
 
 			namespaceScope?.Dispose();
@@ -47,10 +65,12 @@
 			sb.WriteLine("using System.Collections.Generic;");
 			sb.WriteLine("using System.Linq;");
 			sb.WriteLine("using Newtonsoft.Json;");
-			sb.WriteLine($"#if {setting.UnityPlatformDefine}");
-			sb.WriteLine("using UnityEngine;");
-			sb.WriteLine("using UnityEngine.AddressableAssets;");
-			sb.WriteLine("#endif");
+			foreach (var platformInfo in setting.PlatformInfos)
+			{
+				sb.WriteLine($"#if {platformInfo.DefineName}");
+				platformInfo.NamespaceNames.ForEach(x => sb.WriteLine($"using {x};"));
+				sb.WriteLine("#endif");
+			}
 			sb.WriteLine();
 
 			var namespaceScope = string.IsNullOrWhiteSpace(setting.NamespaceName)
@@ -67,18 +87,44 @@
 				sb.WriteLine();
 				using (sb.StartScope($"private static Dictionary<TKey, TValue> {loadDataFunctionName}()"))
 				{
-					sb.WriteLine($"#if {setting.UnityPlatformDefine}");
-					sb.WriteLine("var textAsset = Addressables.LoadAssetAsync<TextAsset>($\"{ DefaultDirectory}/{ typeof(TValue).Name})\").WaitForCompletion();");
-					using (sb.StartScope("if (JsonConvert.DeserializeObject<List<TValue>>(textAsset.text) is not { } data)"))
-					{
-						sb.WriteLine("Debug.LogError($\"{ typeof(TValue).Name} does not loaded.\");");
-						sb.WriteLine("return new Dictionary<TKey, TValue>();");
-					}
 					var keyName = "Key".ChangeNotation(Notation.Pascal, setting.ScriptPublicVariableNameNotation);
-					sb.WriteLine($"return data.ToDictionary(x => x.{keyName}, x => x);");
+					var isFirst = true;
+					foreach (var settingPlatformInfo in setting.PlatformInfos)
+					{
+						if (isFirst)
+						{
+							sb.WriteLine($"#if {settingPlatformInfo.DefineName}");
+							isFirst = false;
+						}
+						else
+						{
+							sb.WriteLine($"#elif {settingPlatformInfo.DefineName}");
+						}
+
+						switch (settingPlatformInfo.Platform)
+						{
+							case Platform.Unity:
+								sb.WriteLine("var textAsset = Addressables.LoadAssetAsync<TextAsset>($\"{DefaultDirectory}/{typeof(TValue).Name})\").WaitForCompletion();");
+								sb.WriteLine("var json = textAsset.text;");
+								break;
+
+							case Platform.CSharp:
+								sb.WriteLine("var json = System.IO.File.ReadAllText($\"{DefaultDirectory}/{typeof(TValue).Name}.json\");");
+								break;
+
+							default:
+								throw new NotImplementedException($"{settingPlatformInfo.Platform}");
+						}
+					}
 					sb.WriteLine("#else");
-					sb.WriteLine("return new Dictionary<TKey, TValue>();");
+					sb.WriteLine("var json = string.Empty;");
 					sb.WriteLine("#endif");
+					sb.WriteLine();
+					using (sb.StartScope("if (JsonConvert.DeserializeObject<List<TValue>>(json) is not { } data)")) 
+					{
+						sb.WriteLine("throw new Exception($\"{typeof(TValue).Name} does not loaded.\");");
+					}
+					sb.WriteLine($"return data.ToDictionary(x => x.{keyName}, x => x);");
 				}
 				sb.WriteLine();
 
@@ -115,11 +161,14 @@
 		public static string GetConstantClassScript(Setting setting)
 		{
 			var sb = new ScopedStringBuilder();
+			sb.WriteLine("using System;");
 			sb.WriteLine("using Newtonsoft.Json;");
-			sb.WriteLine($"#if {setting.UnityPlatformDefine}");
-			sb.WriteLine("using UnityEngine;");
-			sb.WriteLine("using UnityEngine.AddressableAssets;");
-			sb.WriteLine("#endif");
+			foreach (var platformInfo in setting.PlatformInfos)
+			{
+				sb.WriteLine($"#if {platformInfo.DefineName}");
+				platformInfo.NamespaceNames.ForEach(x => sb.WriteLine($"using {x};"));
+				sb.WriteLine("#endif");
+			}
 			sb.WriteLine();
 
 			var namespaceScope = string.IsNullOrWhiteSpace(setting.NamespaceName)
@@ -134,12 +183,43 @@
 					"LoadData".ChangeNotation(Notation.Pascal, setting.ScriptFunctionNameNotation);
 				using (sb.StartScope($"public static void {loadDataFunctionName}()"))
 				{
-					sb.WriteLine($"#if {setting.UnityPlatformDefine}");
 					sb.WriteLine("IsLoaded = true;");
-					sb.WriteLine("var textAsset = Addressables.LoadAssetAsync<TextAsset>($\"{DefaultDirectory}/{typeof(T).Name}\").WaitForCompletion();");
-					sb.WriteLine("if (JsonConvert.DeserializeObject<T>(textAsset.text) is { }) return;");
-					sb.WriteLine("Debug.LogError($\"{ typeof(T).Name} does not loaded.\");");
+					var isFirst = true;
+					foreach (var platformInfo in setting.PlatformInfos)
+					{
+						if (isFirst)
+						{
+							sb.WriteLine($"#if {platformInfo.DefineName}");
+							isFirst = false;
+						}
+						else
+						{
+							sb.WriteLine($"#elif {platformInfo.DefineName}");
+						}
+
+						switch (platformInfo.Platform)
+						{
+							case Platform.Unity:
+								sb.WriteLine("var textAsset = Addressables.LoadAssetAsync<TextAsset>($\"{DefaultDirectory}/{typeof(T).Name}\").WaitForCompletion();");
+								sb.WriteLine("var json = textAsset.text;");
+								break;
+
+							case Platform.CSharp:
+								sb.WriteLine("var json = System.IO.File.ReadAllText($\"{DefaultDirectory}/{typeof(T).Name}.json\");");
+								break;
+
+							default:
+								throw new NotImplementedException($"{platformInfo.Platform}");
+						}
+						
+					}
+					sb.WriteLine("#else");
+					sb.WriteLine("var json = string.Empty;");
 					sb.WriteLine("#endif");
+					sb.WriteLine();
+
+					sb.WriteLine("if (JsonConvert.DeserializeObject<T>(json) is { }) return;");
+					sb.WriteLine("throw new Exception($\"{ typeof(T).Name} does not loaded.\");");
 				}
 			}
 
@@ -156,10 +236,12 @@
 			sb.WriteLine("using System.Collections.Generic;");
 			sb.WriteLine("using System.Linq;");
 			sb.WriteLine("using Newtonsoft.Json;");
-			sb.WriteLine($"#if {setting.UnityPlatformDefine}");
-			sb.WriteLine("using UnityEngine;");
-			sb.WriteLine("using UnityEngine.AddressableAssets;");
-			sb.WriteLine("#endif");
+			foreach (var platformInfo in setting.PlatformInfos)
+			{
+				sb.WriteLine($"#if {platformInfo.DefineName}");
+				platformInfo.NamespaceNames.ForEach(x => sb.WriteLine($"using {x};"));
+				sb.WriteLine("#endif");
+			}
 			sb.WriteLine();
 
 			var namespaceScope = string.IsNullOrWhiteSpace(setting.NamespaceName)
@@ -184,10 +266,42 @@
 
 				using (sb.StartScope($"protected static void {loadDataFunctionName}()"))
 				{
-					sb.WriteLine($"#if {setting.UnityPlatformDefine}");
 					sb.WriteLine("IsLoaded = true;");
-					sb.WriteLine("var textAsset = Addressables.LoadAssetAsync<TextAsset>($\"{DefaultDirectory}/{typeof(TValue).Name}\").WaitForCompletion();");
-					sb.WriteLine("var (_ ,data) = JsonConvert.DeserializeObject<(TValue, List<TValue>)>(textAsset.text);");
+					var isFirst = true;
+					foreach (var platformInfo in setting.PlatformInfos)
+					{
+						if (isFirst)
+						{
+							sb.WriteLine($"#if {platformInfo.DefineName}");
+							isFirst = false;
+						}
+						else
+						{
+							sb.WriteLine($"#elif {platformInfo.DefineName}");
+						}
+
+						switch (platformInfo.Platform)
+						{
+							case Platform.Unity:
+								sb.WriteLine("var textAsset = Addressables.LoadAssetAsync<TextAsset>($\"{DefaultDirectory}/{typeof(TValue).Name}\").WaitForCompletion();");
+								sb.WriteLine("var json = textAsset.text;");
+								break;
+
+							case Platform.CSharp:
+								sb.WriteLine("var json = System.IO.File.ReadAllText($\"{DefaultDirectory}/{typeof(TValue).Name}.json\");");
+								break;
+
+							default:
+								throw new NotImplementedException($"{platformInfo.Platform}");
+						}
+					}
+
+					sb.WriteLine("#else");
+					sb.WriteLine("var json = string.Empty;");
+					sb.WriteLine("#endif");
+					sb.WriteLine();
+
+					sb.WriteLine("var (_ ,data) = JsonConvert.DeserializeObject<(TValue, List<TValue>)>(json);");
 					using (sb.StartScope("if(data is null)"))
 					{
 						sb.WriteLine("Debug.LogError($\"{typeof(TValue).Name} does not loaded.\");");
@@ -196,7 +310,7 @@
 					}
 					var keyName = "Key".ChangeNotation(Notation.Pascal, setting.ScriptPublicVariableNameNotation);
 					sb.WriteLine($"{dataPrivateName} = data.ToDictionary(x => x.{keyName}, x => x);");
-					sb.WriteLine("#endif");
+
 				}
 				sb.WriteLine();
 

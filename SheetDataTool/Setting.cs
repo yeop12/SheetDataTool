@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SheetDataTool
 {
@@ -19,9 +20,7 @@ namespace SheetDataTool
 		public char IgnoreLineSymbol { get; set; } = ';';
 		public string EnumDefaultType { get; set; } = "int";
 		public string NamespaceName { get; set; } = "Sheet";
-		public string DefaultDirectory { get; set; } = "SheetData";
-		public string UnityPlatformDefine { get; set; } = "UNITY_2019_4_OR_NEWER";
-		public string UnityHelperNamespaceName { get; set; } = "UnityHelper";
+		public List<PlatformInfo> PlatformInfos { get; set; } = new();
 
 		public bool IsIgnoreCell([NotNullWhen(false)]string? cell) => string.IsNullOrWhiteSpace(cell) || cell.StartsWith(IgnoreLineSymbol);
 	}
