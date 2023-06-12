@@ -14,8 +14,6 @@ namespace SheetDataTool
 	{
 		private const string AccessInfoKey = "SheetDataTool_AccessInfo";
 		private const string SettingKey = "SheetDataTool_Setting";
-		private const string ScriptPathKey = "SheetDataTool_ScriptPath";
-		private const string DataPathKey = "SheetDataTool_DataPath";
 
 		private enum Mode
 		{
@@ -33,8 +31,6 @@ namespace SheetDataTool
 
 		private GoogleSheetAccessInfo _accessInfo;
 		private Setting _setting;
-		private string _scriptPath;
-		private string _dataPath;
 		private Mode _mode;
 		private GoogleSheetUtil _sheetUtil;
 		private string _searchText;
@@ -54,16 +50,6 @@ namespace SheetDataTool
 				_setting = JsonConvert.DeserializeObject<Setting>(settingJson);
 			}
 
-			if (PlayerPrefs.HasKey(ScriptPathKey))
-			{
-				_scriptPath = PlayerPrefs.GetString(ScriptPathKey);
-			}
-
-			if (PlayerPrefs.HasKey(DataPathKey))
-			{
-				_dataPath = PlayerPrefs.GetString(DataPathKey);
-			}
-
 			if (_accessInfo is null)
 			{
 				_accessInfo = new GoogleSheetAccessInfo();
@@ -76,16 +62,6 @@ namespace SheetDataTool
 			else if (_setting is null)
 			{
 				_setting = new Setting();
-				_mode = Mode.Setting;
-			}
-			else if (Directory.Exists(_scriptPath) is false)
-			{
-				_scriptPath = string.Empty;
-				_mode = Mode.Setting;
-			}
-			else if (Directory.Exists(_dataPath) is false)
-			{
-				_dataPath = string.Empty;
 				_mode = Mode.Setting;
 			}
 			else
@@ -291,6 +267,30 @@ namespace SheetDataTool
 				platformInfo.Platform = (Platform)EditorGUILayout.EnumPopup("Platform", platformInfo.Platform);
 				platformInfo.DefaultDirectory = EditorGUILayout.TextField("Default directory", platformInfo.DefaultDirectory);
 				platformInfo.DefineName = EditorGUILayout.TextField("Define name", platformInfo.DefineName);
+				EditorGUILayout.BeginHorizontal();
+				EditorGUILayout.LabelField("Script path");
+				platformInfo.ScriptPath = EditorGUILayout.TextField(platformInfo.ScriptPath);
+				if (GUILayout.Button("Find", GUILayout.MaxWidth(70))) 
+				{
+					var path = EditorUtility.OpenFolderPanel("Scrip path", Application.dataPath, "");
+					if (path.Length != 0) 
+					{
+						platformInfo.ScriptPath = path;
+					}
+				}
+				EditorGUILayout.EndHorizontal();
+				EditorGUILayout.BeginHorizontal();
+				EditorGUILayout.LabelField("Data path");
+				platformInfo.DataPath = EditorGUILayout.TextField(platformInfo.DataPath);
+				if (GUILayout.Button("Find", GUILayout.MaxWidth(70))) 
+				{
+					var path = EditorUtility.OpenFolderPanel("Data path", Application.dataPath, "");
+					if (path.Length != 0) 
+					{
+						platformInfo.DataPath = path;
+					}
+				}
+				EditorGUILayout.EndHorizontal();
 				EditorGUILayout.LabelField("Namespace names");
 				++EditorGUI.indentLevel;
 				EditorGUILayout.BeginVertical("Box");
@@ -316,6 +316,8 @@ namespace SheetDataTool
 
 				EditorGUILayout.EndVertical();
 				--EditorGUI.indentLevel;
+
+				EditorGUILayout.Separator();
 			}
 			if (GUILayout.Button("Add Platform"))
 			{
@@ -327,57 +329,13 @@ namespace SheetDataTool
 			EditorGUILayout.EndVertical();
 			--EditorGUI.indentLevel;
 			EditorGUILayout.Separator();
-			
-			EditorGUILayout.LabelField("Export");
-			++EditorGUI.indentLevel;
-			EditorGUILayout.BeginVertical("Box");
-			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField("Script path");
-			_scriptPath = EditorGUILayout.TextField(_scriptPath);
-			if (GUILayout.Button("Find", GUILayout.MaxWidth(70))) 
-			{
-				var path = EditorUtility.OpenFolderPanel("Scrip path", Application.dataPath, "");
-				if (path.Length != 0) 
-				{
-					_scriptPath = path;
-				}
-			}
-			EditorGUILayout.EndHorizontal();
-			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField("Data path");
-			_dataPath = EditorGUILayout.TextField(_dataPath);
-			if (GUILayout.Button("Find", GUILayout.MaxWidth(70))) 
-			{
-				var path = EditorUtility.OpenFolderPanel("Data path", Application.dataPath, "");
-				if (path.Length != 0) 
-				{
-					_dataPath = path;
-				}
-			}
-			EditorGUILayout.EndHorizontal();
-			EditorGUILayout.EndVertical();
-			--EditorGUI.indentLevel;
-			EditorGUILayout.Separator();
 
 			if (GUILayout.Button("Save"))
 			{
-				if (Directory.Exists(_scriptPath) is false)
-				{
-					EditorUtility.DisplayDialog("Error", "Script path is invalid.", "Ok");
-				}
-				else if (Directory.Exists(_dataPath) is false)
-				{
-					EditorUtility.DisplayDialog("Error", "Data path is invalid.", "Ok");
-				}
-				else
-				{
-					var settingJson = JsonConvert.SerializeObject(_setting);
-					PlayerPrefs.SetString(SettingKey, settingJson);
-					PlayerPrefs.SetString(ScriptPathKey, _scriptPath);
-					PlayerPrefs.SetString(DataPathKey, _dataPath);
-					PlayerPrefs.Save();
-					_mode = Mode.SheetList;
-				}
+				var settingJson = JsonConvert.SerializeObject(_setting);
+				PlayerPrefs.SetString(SettingKey, settingJson);
+				PlayerPrefs.Save();
+				_mode = Mode.SheetList;
 			}
 
 			if (PlayerPrefs.HasKey(SettingKey) && GUILayout.Button("Back"))
@@ -413,12 +371,12 @@ namespace SheetDataTool
 						var sheetInfo = _sheetUtil.GetSheetInfo(sheetName);
 						var contentsData = new ContentsData(sheetInfo, _setting);
 						var script = contentsData.GetScript(false);
-						File.WriteAllText($"{_scriptPath}/{sheetName}.cs", script);
+						_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{sheetName}.cs", script));
 						if (contentsData.HasDataFile)
 						{
-							var assembly = MakeAssembly(contentsData.GetScript(true), $"{_scriptPath}\\{sheetName}.cs");
+							var assembly = MakeAssembly(contentsData.GetScript(true), $"{_setting.PlatformInfos.First().ScriptPath}\\{sheetName}.cs");
 							var json = contentsData.Serialize(assembly);
-							File.WriteAllText($"{_dataPath}/{sheetName}.json", json);
+							_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.DataPath}/{sheetName}.json", json));
 						}
 						AssetDatabase.Refresh(ImportAssetOptions.Default);
 					}
@@ -436,9 +394,9 @@ namespace SheetDataTool
 						var contentsData = new ContentsData(sheetInfo, _setting);
 						if (contentsData.HasDataFile)
 						{
-							var assembly = MakeAssembly(contentsData.GetScript(true), $"{_scriptPath}\\{sheetName}.cs");
+							var assembly = MakeAssembly(contentsData.GetScript(true), $"{_setting.PlatformInfos.First().ScriptPath}\\{sheetName}.cs");
 							var json = contentsData.Serialize(assembly);
-							File.WriteAllText($"{_dataPath}/{sheetName}.json", json);
+							_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.DataPath}/{sheetName}.json", json));
 						}
 						AssetDatabase.Refresh(ImportAssetOptions.Default);
 					}
@@ -479,7 +437,7 @@ namespace SheetDataTool
 				scripts.Add(script);
 			}
 			scripts.Add(ScriptUtil.GetUnityTypeScript());
-			scripts.AddRange(Directory.GetFiles(_scriptPath, "*.cs").Where(x => x != ignoreFileName).Select(File.ReadAllText));
+			scripts.AddRange(Directory.GetFiles(_setting.PlatformInfos.First().ScriptPath, "*.cs").Where(x => x != ignoreFileName).Select(File.ReadAllText));
 			return CompileUtil.Compile("TempLib", scripts.ToArray());
 		}
 
@@ -491,49 +449,49 @@ namespace SheetDataTool
 			if (GUILayout.Button("Base class"))
 			{
 				var script = ScriptUtil.GetBaseClassScript(_setting);
-				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetBaseClassName(_setting)}.cs", script);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetBaseClassName(_setting)}.cs", script));
 				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
 			if (GUILayout.Button("Design interface")) 
 			{
 				var script = ScriptUtil.GetDesignInterfaceScript(_setting);
-				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetDesignInterfaceName(_setting)}.cs", script);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetDesignInterfaceName(_setting)}.cs", script));
 				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
 			if (GUILayout.Button("Design class"))
 			{
 				var script = ScriptUtil.GetDesignClassScript(_setting);
-				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetDesignClassName(_setting)}.cs", script);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetDesignClassName(_setting)}.cs", script));
 				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
 			if (GUILayout.Button("Constant class"))
 			{
 				var script = ScriptUtil.GetConstantClassScript(_setting);
-				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetConstantClassName(_setting)}.cs", script);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetConstantClassName(_setting)}.cs", script));
 				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
 			if (GUILayout.Button("Full class"))
 			{
 				var script = ScriptUtil.GetFullClassScript(_setting);
-				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetFullClassName(_setting)}.cs", script);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetFullClassName(_setting)}.cs", script));
 				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
 			if (GUILayout.Button("ExcelDataNotFoundException class"))
 			{
 				var script = ScriptUtil.GetExcelDataNotFoundExceptionScript(_setting);
-				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetExcelDataNotFoundExceptionName(_setting)}.cs", script);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetExcelDataNotFoundExceptionName(_setting)}.cs", script));
 				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
 			if (GUILayout.Button("External init class"))
 			{
 				var script = ScriptUtil.GetExternalInitScript(_setting);
-				File.WriteAllText($"{_scriptPath}/{ScriptUtil.GetExternalInitName()}.cs", script);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetExternalInitName()}.cs", script));
 				AssetDatabase.Refresh(ImportAssetOptions.Default);
 			}
 
