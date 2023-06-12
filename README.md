@@ -677,10 +677,35 @@ Update later.
 ## Generate goolge sheet aouth token
 
 ## Set up window setting
+	
+1. Open SheetDataTool window(Window -> SheetDataTool)
 
-## Generate data and script
+	
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/1045edfb-bd5b-4060-87dd-522c3574026a)
 
-# How it works?
+2. Write access info
+OAuth file path : Set it to the path of the aouth file created in the previous step.  
+Spread sheet id : Write down the value in the path after d/ among the paths in the spread sheet.  
+(Ex, If path is https://docs.google.com/spreadsheets/d/123456789A then 123456789A is id.)  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/91d3024d-c8d8-4d17-a553-5446fff2fb9b)  
+
+3. Set setting values  
+Set the setting information to be used in sheets and scripts.  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/e74ea58f-72a9-4045-9984-378ea4c742c3)  
+	
+Enter the platform information to use. One script and data file per platform is provided and supports Unity or general csharp.  
+When using Unity, you must add UnityEngine and UnityEngine.AddressableAssets.    
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/284fec7a-a243-491f-bc86-3db317da11f1)  
+	
+4. Generate data and script  
+When the setting is complete, the list of sheets is displayed and data and scripts are created by pressing the cs and ed buttons.  
+cs : regenerate script and json file(when data structure changed.)  
+ed : export only json file(when data structure not changed.)  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/8ef5bb06-85aa-446a-8ddf-0653652c44ad)  
+
+5. Generate default script  
+Create a basic script for using the sheet data tool.  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/01cf0131-807a-4946-aa5b-8588b316853e)  
 
 # Release Notes
 ## Version 1.0.1
