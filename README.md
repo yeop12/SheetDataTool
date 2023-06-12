@@ -16,7 +16,9 @@ SheetDataTool easily processes GoogleSheet or ExcelSheet data, serializes it to 
 ## Install via git URL
 1. Open package manager
 2. Add package from git URL
-    https://github.com/yeop12/SheetDataTool.git?path=SheetDataToolForUnity/Assets/Plugins/SheetDataTool
+```
+https://github.com/yeop12/SheetDataTool.git?path=SheetDataToolForUnity/Assets/Plugins/SheetDataTool
+```
 
 # Sheet Guide
 The sheet guide explains how to create a sheet, given each situation and tells you how to create a sheet for it.
@@ -59,16 +61,35 @@ Design sub items
 
 ### Generated Code
 ```
-public partial record Character : Sheet<int, Character>
+/// <summary>
+/// Item table
+/// </summary>
+public sealed partial record Temp : DesignSheetDataHelper<int, Temp>, IDesignSheetData<int>
 {
-  public int Id { get; init; }
-  public int Hp { get; init; }
-  public int AttackPower { get; init; }
+	[JsonIgnore]
+	public int Key => Id;
+
+	/// <summary> Unique identifier </summary>
+	public int Id { get; init; }
+
+	/// <summary> Name </summary>
+	public string Name { get; init; }
+
 }
 ```
 
 ### Serialized Data(Json)
 ```
+[
+  {
+    "Id": 1,
+    "Name": "Sword"
+  },
+  {
+    "Id": 2,
+    "Name": "RedPotion"
+  }
+]
 ```
 
 ## Usable types
@@ -127,10 +148,40 @@ Next, let's use a nullable type. Add the usage period to the item table, and use
 
 ### Generated Code
 ```
+/// <summary>
+/// Item table
+/// </summary>
+public sealed partial record Temp : DesignSheetDataHelper<int, Temp>, IDesignSheetData<int>
+{
+	[JsonIgnore]
+	public int Key => Id;
+
+	/// <summary> Unique identifier </summary>
+	public int Id { get; init; }
+
+	/// <summary> Name </summary>
+	public string Name { get; init; }
+
+	/// <summary> Possession period(Days) </summary>
+	public int? Period { get; init; }
+
+}
 ```
 
 ### Serialized Data(Json)
 ```
+[
+  {
+    "Id": 1,
+    "Name": "Sword",
+    "Period": 200
+  },
+  {
+    "Id": 2,
+    "Name": "RedPotion",
+    "Period": null
+  }
+]
 ```
 
 ## Using enum
@@ -183,10 +234,65 @@ Options : Each item can have options, separated by colon(:).
 
 ### Generated Code
 ```
+[JsonConverter(typeof(StringEnumConverter))]
+public enum ItemType : int
+{
+	/// <summary> Weapon item </summary>
+	Weapon,
+
+	/// <summary> Potion item </summary>
+	Potion,
+
+	/// <summary> Package item </summary>
+	Package,
+
+}
+
+/// <summary>
+/// Item table
+/// </summary>
+public sealed partial record Temp : DesignSheetDataHelper<int, Temp>, IDesignSheetData<int>
+{
+	[JsonIgnore]
+	public int Key => Id;
+
+	/// <summary> Unique identifier </summary>
+	public int Id { get; init; }
+
+	/// <summary> Name </summary>
+	public string Name { get; init; }
+
+	/// <summary> Possession period(Days) </summary>
+	public int? Period { get; init; }
+
+	/// <summary> Item type </summary>
+	public ItemType Type { get; init; }
+
+}
 ```
 
 ### Serialized Data(Json)
 ```
+[
+  {
+    "Id": 1,
+    "Name": "Sword",
+    "Period": 200,
+    "Type": "Weapon"
+  },
+  {
+    "Id": 2,
+    "Name": "RedPotion",
+    "Period": null,
+    "Type": "Potion"
+  },
+  {
+    "Id": 3,
+    "Name": "BeginnerPackage",
+    "Period": null,
+    "Type": "Package"
+  }
+]
 ```
 
 ## Using list
@@ -224,10 +330,64 @@ To use a list, declare it as List<T> when the desired type is T, and write the i
 
 ### Generated Code
 ```
+/// <summary>
+/// Item table
+/// </summary>
+public sealed partial record Temp : DesignSheetDataHelper<int, Temp>, IDesignSheetData<int>
+{
+	[JsonIgnore]
+	public int Key => Id;
+
+	/// <summary> Unique identifier </summary>
+	public int Id { get; init; }
+
+	/// <summary> Name </summary>
+	public string Name { get; init; }
+
+	/// <summary> Possession period(Days) </summary>
+	public int? Period { get; init; }
+
+	/// <summary> Item type </summary>
+	public ItemType Type { get; init; }
+
+	/// <summary> If it is a package item, list of package contents item unique number </summary>
+	[JsonProperty(nameof(PackageItemIds))]
+	private List<int> _packageItemIds { get; init; }
+
+	[JsonIgnore]
+	public IReadOnlyList<int> PackageItemIds => _packageItemIds;
+
+}
 ```
 
 ### Serizlied Data
 ```
+[
+  {
+    "Id": 1,
+    "Name": "Sword",
+    "Period": 200,
+    "Type": "Weapon",
+    "PackageItemIds": null
+  },
+  {
+    "Id": 2,
+    "Name": "RedPotion",
+    "Period": null,
+    "Type": "Potion",
+    "PackageItemIds": null
+  },
+  {
+    "Id": 3,
+    "Name": "BeginnerPackage",
+    "Period": null,
+    "Type": "Package",
+    "PackageItemIds": [
+      1,
+      2
+    ]
+  }
+]
 ```
 
 ## Using record
@@ -257,10 +417,10 @@ Next, let's add item icon image information to the item table. Item image consis
 |Period|int?| |Possession period(Days)|
 |Type|ItemType| |Item type|
 |PackageItemIds|List<int>| |If it is a package item, list of package contents item unique number|
-|`IconImageInfo`|`ImageInfo`|`Icon image info`|
+|`IconImageInfo`|`ImageInfo`| |`Icon image info`|
 | |
 |**Name**|
-|Id|Name|Period|Type|PackageItemIds[0]|PackageItemIds[1]|`IconImageInfo.SpriteName`|`IconImageInfo.AtalsName`|
+|Id|Name|Period|Type|PackageItemIds[0]|PackageItemIds[1]|`IconImageInfo.SpriteName`|`IconImageInfo.AtlasName`|
 | |
 |**Data**|
 |1|Sword|200|Weapon| | |`Sword`|`WeaponAtlas`|
@@ -276,10 +436,90 @@ To use the record item, define the record, name on the right side, and name, typ
 
 ### Generated Code
 ```
+[Serializable]
+public partial record ImageInfo
+{
+	/// <summary> Sprite name for image </summary>
+	public string SpriteName { get; init; }
+
+	/// <summary> Atlas name for image </summary>
+	public string AtlasName { get; init; }
+
+}
+
+/// <summary>
+/// Item table
+/// </summary>
+public sealed partial record Temp : DesignSheetDataHelper<int, Temp>, IDesignSheetData<int>
+{
+	[JsonIgnore]
+	public int Key => Id;
+
+	/// <summary> Unique identifier </summary>
+	public int Id { get; init; }
+
+	/// <summary> Name </summary>
+	public string Name { get; init; }
+
+	/// <summary> Possession period(Days) </summary>
+	public int? Period { get; init; }
+
+	/// <summary> Item type </summary>
+	public ItemType Type { get; init; }
+
+	/// <summary> If it is a package item, list of package contents item unique number </summary>
+	[JsonProperty(nameof(PackageItemIds))]
+	private List<int> _packageItemIds { get; init; }
+
+	[JsonIgnore]
+	public IReadOnlyList<int> PackageItemIds => _packageItemIds;
+
+	/// <summary> Icon image info </summary>
+	public ImageInfo IconImageInfo { get; init; }
+
+}
 ```
 
 ### Serizlied Data(Json)
 ```
+[
+  {
+    "Id": 1,
+    "Name": "Sword",
+    "Period": 200,
+    "Type": "Weapon",
+    "PackageItemIds": null,
+    "IconImageInfo": {
+      "SpriteName": "Sword",
+      "AtlasName": "WeaponAtlas"
+    }
+  },
+  {
+    "Id": 2,
+    "Name": "RedPotion",
+    "Period": null,
+    "Type": "Potion",
+    "PackageItemIds": null,
+    "IconImageInfo": {
+      "SpriteName": "RedPotion",
+      "AtlasName": "PotionAtlas"
+    }
+  },
+  {
+    "Id": 3,
+    "Name": "BeginnerPackage",
+    "Period": null,
+    "Type": "Package",
+    "PackageItemIds": [
+      1,
+      2
+    ],
+    "IconImageInfo": {
+      "SpriteName": "BeginnerPackage",
+      "AtlasName": "PackageAtlas"
+    }
+  }
+]
 ```
 
 ## Using constant
@@ -325,13 +565,105 @@ Next, we define the maximum number of items we can have as a constant.
 
 ### Generated Code
 ```
+/// <summary>
+/// Item table
+/// </summary>
+public sealed partial record Temp : FullSheetDataHelper<int, Temp>, IDesignSheetData<int>
+{
+	[JsonProperty(nameof(MaxItemCount))]
+	private static int _maxItemCount { get; set; }
+
+	/// <summary> Maximum number of items a player can have </summary>
+	[JsonIgnore]
+	public static int MaxItemCount
+	{
+		get
+		{
+			if(IsLoaded is false) LoadData();
+			return _maxItemCount;
+		}
+	}
+
+
+	[JsonIgnore]
+	public int Key => Id;
+
+	/// <summary> Unique identifier </summary>
+	public int Id { get; init; }
+
+	/// <summary> Name </summary>
+	public string Name { get; init; }
+
+	/// <summary> Possession period(Days) </summary>
+	public int? Period { get; init; }
+
+	/// <summary> Item type </summary>
+	public ItemType Type { get; init; }
+
+	/// <summary> If it is a package item, list of package contents item unique number </summary>
+	[JsonProperty(nameof(PackageItemIds))]
+	private List<int> _packageItemIds { get; init; }
+
+	[JsonIgnore]
+	public IReadOnlyList<int> PackageItemIds => _packageItemIds;
+
+	/// <summary> Icon image info </summary>
+	public ImageInfo IconImageInfo { get; init; }
+
+}
 ```
 
 ### Serialized Data(Json)
 ```
+{
+"item1" : 
+{
+  "MaxItemCount": 20
+},
+"item2" : 
+[
+  {
+    "Id": 1,
+    "Name": "Sword",
+    "Period": 200,
+    "Type": "Weapon",
+    "PackageItemIds": null,
+    "IconImageInfo": {
+      "SpriteName": "Sword",
+      "AtlasName": "WeaponAtlas"
+    }
+  },
+  {
+    "Id": 2,
+    "Name": "RedPotion",
+    "Period": null,
+    "Type": "Potion",
+    "PackageItemIds": null,
+    "IconImageInfo": {
+      "SpriteName": "RedPotion",
+      "AtlasName": "PotionAtlas"
+    }
+  },
+  {
+    "Id": 3,
+    "Name": "BeginnerPackage",
+    "Period": null,
+    "Type": "Package",
+    "PackageItemIds": [
+      1,
+      2
+    ],
+    "IconImageInfo": {
+      "SpriteName": "BeginnerPackage",
+      "AtlasName": "PackageAtlas"
+    }
+  }
+]
+}
 ```
 
 ## Using interface
+Update later.
 
 # Unity Guide
 ## Generate goolge sheet aouth token
