@@ -1,10 +1,10 @@
 # Table Of Contents
-* Introduction
-* Installation
-* Sheet Guide
-* Unity Guide
-* Release Notes
-* License
+* [Introduction](#Introduction)
+* [Installation](#Installation)
+* [Sheet Guide](#Sheet-Guide)
+* [Unity Guide](#Unity-Guide)
+* [Release Notes](#Release-Notes)
+* [License](#License)
 
 # Introduction
 SheetDataTool easily processes GoogleSheet or ExcelSheet data, serializes it to json, and automatically generates code for use in Unity.
