@@ -14,6 +14,8 @@ namespace SheetDataTool
 	{
 		private const string AccessInfoKey = "SheetDataTool_AccessInfo";
 		private const string SettingKey = "SheetDataTool_Setting";
+		private const string SheetTypeKey = "SheetDataTool_SheetType";
+		private const string ExcelFolderPathKey = "SheetDataTool_ExcelFolderPath";
 
 		private enum Mode
 		{
@@ -29,10 +31,12 @@ namespace SheetDataTool
 			GetWindow(typeof(SheetDataToolWindow), false, "SheetDataTool");
 		}
 
+		private SheetType _sheetType;
+		private string _excelFolderPath = string.Empty;
 		private GoogleSheetAccessInfo _accessInfo;
 		private Setting _setting;
 		private Mode _mode;
-		private GoogleSheetUtil _sheetUtil;
+		private SheetUtil _sheetUtil;
 		private string _searchText;
 		private Vector2 _scrollPosition;
 
@@ -50,9 +54,24 @@ namespace SheetDataTool
 				_setting = JsonConvert.DeserializeObject<Setting>(settingJson);
 			}
 
-			if (_accessInfo is null)
+			if (PlayerPrefs.HasKey(SheetTypeKey))
+			{
+				var sheetType = PlayerPrefs.GetInt(SheetTypeKey);
+				_sheetType = (SheetType)sheetType;
+			}
+
+			if (PlayerPrefs.HasKey(ExcelFolderPathKey))
+			{
+				_excelFolderPath = PlayerPrefs.GetString(ExcelFolderPathKey);
+			}
+
+			if (_sheetType == SheetType.GoogleSheet && _accessInfo is null)
 			{
 				_accessInfo = new GoogleSheetAccessInfo();
+				_mode = Mode.AccessInfo;
+			}
+			else if (_sheetType == SheetType.ExcelSheet && string.IsNullOrWhiteSpace(_excelFolderPath))
+			{
 				_mode = Mode.AccessInfo;
 			}
 			else if (MakeSheetUtil() is false)
@@ -74,7 +93,12 @@ namespace SheetDataTool
 		{
 			try
 			{
-				_sheetUtil = new GoogleSheetUtil(_accessInfo.OAuthFilePath, _accessInfo.SheetID);
+				_sheetUtil = _sheetType switch
+				{
+					SheetType.GoogleSheet => new GoogleSheetUtil(_accessInfo.OAuthFilePath, _accessInfo.SheetID),
+					SheetType.ExcelSheet => new ExcelSheetUtil(_excelFolderPath),
+					_ => throw new NotImplementedException($"{_sheetType}")
+				};
 				return true;
 			}
 			catch (FileNotFoundException e)
@@ -129,30 +153,67 @@ namespace SheetDataTool
 		{
 			EditorGUILayout.LabelField("Access Information", new GUIStyle(){fontSize = 20, normal = new GUIStyleState(){textColor = Color.white}});
 			EditorGUILayout.Separator();
-			
-			EditorGUILayout.LabelField("OAuth file path");
-			EditorGUILayout.BeginHorizontal();
-			_accessInfo.OAuthFilePath = EditorGUILayout.TextField(_accessInfo.OAuthFilePath);
-			if (GUILayout.Button("Find", GUILayout.MaxWidth(70)))
-			{
-				var path = EditorUtility.OpenFilePanel("OAuth file", Application.dataPath, "json");
-				if (path.Length != 0)
-				{
-					_accessInfo.OAuthFilePath = path;
-				}
-			}
-			EditorGUILayout.EndHorizontal();
 
-			EditorGUILayout.LabelField("Spread sheet id");
-			_accessInfo.SheetID = EditorGUILayout.TextField(_accessInfo.SheetID);
+			_sheetType = (SheetType)EditorGUILayout.EnumPopup("Sheet type", _sheetType);
+
+			switch (_sheetType)
+			{
+				case SheetType.GoogleSheet:
+					EditorGUILayout.LabelField("OAuth file path");
+					EditorGUILayout.BeginHorizontal();
+					_accessInfo.OAuthFilePath = EditorGUILayout.TextField(_accessInfo.OAuthFilePath);
+					if (GUILayout.Button("Find", GUILayout.MaxWidth(70)))
+					{
+						var path = EditorUtility.OpenFilePanel("OAuth file", Application.dataPath, "json");
+						if (path.Length != 0)
+						{
+							_accessInfo.OAuthFilePath = path;
+						}
+					}
+					EditorGUILayout.EndHorizontal();
+
+					EditorGUILayout.LabelField("Spread sheet id");
+					_accessInfo.SheetID = EditorGUILayout.TextField(_accessInfo.SheetID);
+					break;
+
+				case SheetType.ExcelSheet:
+					EditorGUILayout.BeginHorizontal();
+					_excelFolderPath = EditorGUILayout.TextField(_excelFolderPath);
+					if (GUILayout.Button("Find", GUILayout.MaxWidth(70)))
+					{
+						var path = EditorUtility.OpenFolderPanel("Excel folder", Application.dataPath, "");
+						if (path.Length != 0)
+						{
+							_excelFolderPath = path;
+						}
+					}
+					EditorGUILayout.EndHorizontal();
+					break;
+
+				default:
+					throw new NotImplementedException($"{_sheetType}");
+			}
 			EditorGUILayout.Separator();
 
 			if (GUILayout.Button("Save"))
 			{
 				if (MakeSheetUtil())
 				{
-					var accessInfoJson = JsonConvert.SerializeObject(_accessInfo);
-					PlayerPrefs.SetString(AccessInfoKey, accessInfoJson);
+					PlayerPrefs.SetInt(SheetTypeKey, (int)_sheetType);
+					switch (_sheetType)
+					{
+						case SheetType.GoogleSheet:
+							var accessInfoJson = JsonConvert.SerializeObject(_accessInfo);
+							PlayerPrefs.SetString(AccessInfoKey, accessInfoJson);
+							break;
+
+						case SheetType.ExcelSheet:
+							PlayerPrefs.SetString(ExcelFolderPathKey, _excelFolderPath);
+							break;
+
+						default:
+							throw new NotImplementedException($"{_sheetType}");
+					}
 					PlayerPrefs.Save();
 					if (_setting is null)
 					{
