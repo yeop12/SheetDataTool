@@ -15,7 +15,15 @@ SheetDataTool easily processes GoogleSheet or ExcelSheet data, serializes it to 
 
 ## Install via git URL
 1. Open package manager
+
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/4d3ee0b2-7194-409d-868e-06d940c7d42e)
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/a01d7101-8305-45ff-89e0-63f381ad579b)
+
+
 2. Add package from git URL
+
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/73946711-20a9-4f9a-9b73-9278bca91531)
+
 ```
 https://github.com/yeop12/SheetDataTool.git?path=SheetDataToolForUnity/Assets/Plugins/SheetDataTool
 ```
