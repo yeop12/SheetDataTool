@@ -674,7 +674,7 @@ public sealed partial record Item : FullSheetDataHelper<int, Item>, IDesignSheet
 Update later.
 
 # Unity Guide  
-## Generate goolge sheet aouth token  
+## Generate google sheet oauth token  
 <details>
 <summary>Contents</summary>
 
