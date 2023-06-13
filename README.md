@@ -673,8 +673,42 @@ public sealed partial record Item : FullSheetDataHelper<int, Item>, IDesignSheet
 ## Using interface
 Update later.
 
-# Unity Guide
-## Generate goolge sheet aouth token
+# Unity Guide  
+## Generate goolge sheet aouth token  
+<details>
+<summary>Contents</summary>
+
+1. Enter google cloud platform site(https://console.cloud.google.com/)  
+2. Select project button  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/7ceb0f91-6487-4121-a134-7b0c575eaf0b)  
+3. Select new prject button  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/539c91f5-5495-48bd-bf8c-fbec4142d887)  
+4. Create new project  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/35d137c3-2661-4d5b-b186-36954a578291)  
+5. Select api and service then click aouth button  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/25c32850-f8aa-4757-b03f-8c514bd0ec72)  
+6. Click created project  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/3e5e0add-a4d6-4f42-9511-e188be512bc3)  
+7. Click outside and create  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/db2177ed-7557-4054-b3bd-fcb58e52a70a)  
+8. Write information and continue  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/ecfd5afb-5b06-42ea-9964-c67b65ac5677)  
+9. Save and continue  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/b230b31e-3ac1-42ec-b156-16cf1b6817c6)  
+10. Save and continue  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/b7fc2ba4-b798-4e1e-86fd-e20d89f47c6f)  
+11. Back to dashboard  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/ce08b9fd-7b50-46ba-90f5-9efcd67f5ed0)  
+12. Click user authentication information button  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/5680a222-3931-45c9-8c82-a4ebee2d080b)  
+13. Click aouth client id button  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/4ad3721e-9a3d-4941-b3bb-31b6a132264e)  
+14. Create new client id  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/ffd2a372-7fa3-4678-b43b-13be823aa0f9)  
+15. Save json file  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/3d66ea75-e110-4794-959c-9916629a60dd)  
+
+</details>
 
 ## Set up window setting  
 1. Open SheetDataTool window(Window -> SheetDataTool)  
