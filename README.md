@@ -680,11 +680,19 @@ Update later.
 1. Open SheetDataTool window(Window -> SheetDataTool)  
 ![image](https://github.com/yeop12/SheetDataTool/assets/11326612/1045edfb-bd5b-4060-87dd-522c3574026a)
 
-2. Write access info
+2. Write access info  
+First select sheet type  
+GoogleSheet : google sheet in cloud  
+ExcelSheet : excel sheet file in drive  
+* Google Sheet
 OAuth file path : Set it to the path of the aouth file created in the previous step.  
 Spread sheet id : Write down the value in the path after d/ among the paths in the spread sheet.  
 (Ex, If path is https://docs.google.com/spreadsheets/d/123456789A then 123456789A is id.)  
-![image](https://github.com/yeop12/SheetDataTool/assets/11326612/91d3024d-c8d8-4d17-a553-5446fff2fb9b)  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/e898ea82-aaf2-43ad-85db-8d7daa40c1f1)  
+  
+* Excel Sheet
+Select excel file folder path  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/92a0bf16-6708-44f3-bbc7-b759e72fb565)  
 
 3. Set setting values  
 Set the setting information to be used in sheets and scripts.  
