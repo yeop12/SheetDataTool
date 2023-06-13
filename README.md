@@ -699,14 +699,26 @@ Update later.
 ![image](https://github.com/yeop12/SheetDataTool/assets/11326612/b7fc2ba4-b798-4e1e-86fd-e20d89f47c6f)  
 11. Back to dashboard  
 ![image](https://github.com/yeop12/SheetDataTool/assets/11326612/ce08b9fd-7b50-46ba-90f5-9efcd67f5ed0)  
-12. Click user authentication information button  
-![image](https://github.com/yeop12/SheetDataTool/assets/11326612/5680a222-3931-45c9-8c82-a4ebee2d080b)  
-13. Click aouth client id button  
-![image](https://github.com/yeop12/SheetDataTool/assets/11326612/4ad3721e-9a3d-4941-b3bb-31b6a132264e)  
-14. Create new client id  
-![image](https://github.com/yeop12/SheetDataTool/assets/11326612/ffd2a372-7fa3-4678-b43b-13be823aa0f9)  
-15. Save json file  
-![image](https://github.com/yeop12/SheetDataTool/assets/11326612/3d66ea75-e110-4794-959c-9916629a60dd)  
+12. Click IAM then service account button  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/a1a330f1-fc92-43bb-825f-57118aa2dcb6)  
+13. Click create new service account button  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/cf26b82d-3603-4dbf-8fc6-289759053dc9)  
+14. Click confirm button  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/aef39d87-4416-4480-975b-efe5bcef808f)  
+15. Click email button  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/8c617db5-dbf4-4d6f-8594-99cdc0abed83)  
+16. Click key and new key button  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/b1ebef1c-f151-4614-8b1a-86295eee219d)  
+17. Create with json  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/257a121d-2699-4096-93bb-dfbe72502c6b)  
+18. Click product and solution then all product button  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/c0e2e553-0569-4d03-9e8a-7968b9edbe16)  
+19. Search 'sheet'  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/462e44db-b51c-43e0-a5c6-2d0ca7acac6e)  
+20. Click google sheet api button  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/14b9b00c-3936-44a7-84f4-ed5736190c2b)  
+21. Click use button  
+![image](https://github.com/yeop12/SheetDataTool/assets/11326612/9bc92b3e-5603-495f-97d7-63edf85ee3cc)  
 
 </details>
 
