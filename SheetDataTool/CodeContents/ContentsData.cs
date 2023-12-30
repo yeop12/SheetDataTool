@@ -205,7 +205,11 @@ namespace SheetDataTool
 					var addCount = _listIndex - list.Count + 1;
 					for (var i = 0; i < addCount; ++i)
 					{
-						var item = Activator.CreateInstance(OutputType);
+						object? item = null;
+						if (OutputType != typeof(string))
+						{
+							item = Activator.CreateInstance(OutputType);
+						}
 						list.Add(item);
 					}
 				}
