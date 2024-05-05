@@ -418,10 +418,10 @@ namespace SheetDataTool
 			
 			using (sb.StartScope("public record Color"))
 			{
-				sb.WriteLine("public int r { get; init; }");
-				sb.WriteLine("public int g { get; init; }");
-				sb.WriteLine("public int b { get; init; }");
-				sb.WriteLine("public int a { get; init; }");
+				sb.WriteLine("public float r { get; init; }");
+				sb.WriteLine("public float g { get; init; }");
+				sb.WriteLine("public float b { get; init; }");
+				sb.WriteLine("public float a { get; init; }");
 			}
 
 			return sb.ToString();
