@@ -27,7 +27,8 @@ namespace SheetDataTool
 				throw new Exception($"{sheetName} does not exist.");
 			}
 
-			using var document = SpreadsheetDocument.Open(path, false);
+			using var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+			using var document = SpreadsheetDocument.Open(stream, false);
 			var workbookPart = document.WorkbookPart;
 			if (workbookPart is null)
 			{
@@ -118,9 +119,16 @@ namespace SheetDataTool
 
 			_pathBySheetName.Clear();
 
-			foreach (var fileName in fileNames) 
+			foreach (var fileName in fileNames)
 			{
-				using var document = SpreadsheetDocument.Open(fileName, false);
+				var fileInfo = new FileInfo(fileName);
+				if (fileInfo.Attributes.HasFlag(FileAttributes.Hidden))
+				{
+					continue;
+				}
+
+				using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+				using var document = SpreadsheetDocument.Open(stream, false);
 				var wbPart = document.WorkbookPart;
 				var sheets = wbPart?.Workbook.Sheets;
 				if (sheets is null) continue;
