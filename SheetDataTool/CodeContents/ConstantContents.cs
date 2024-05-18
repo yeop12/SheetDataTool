@@ -10,6 +10,8 @@ namespace SheetDataTool
 	{
 		internal record Element()
 		{
+			public int Row { get; init; }
+
 			[ContentsElementItemDescription(true)]
 			public string Name { get; init; } = string.Empty;
 
@@ -18,6 +20,8 @@ namespace SheetDataTool
 
 			[ContentsElementItemDescription(true)]
 			public string Value { get; init; } = string.Empty;
+
+			public int ValueColumn { get; init; }
 
 			[ContentsElementItemDescription(false)]
 			public string? Comment { get; init; }
@@ -61,8 +65,15 @@ namespace SheetDataTool
 				if (propertyInfo is null) throw new Exception($"{obj.GetType()} type does not contain {privateItemName} property.");
 				if (TypeUtil.IsBasicType(Type))
 				{
-					var value = TypeUtil.ChangeType(Value, propertyInfo.PropertyType);
-					propertyInfo.SetValue(obj, value);
+					try
+					{
+						var value = TypeUtil.ChangeType(Value, propertyInfo.PropertyType);
+						propertyInfo.SetValue(obj, value);
+					}
+					catch
+					{
+						throw new MismatchTypeException(propertyInfo.PropertyType, Value, Row, ValueColumn);
+					}
 				}
 				else
 				{

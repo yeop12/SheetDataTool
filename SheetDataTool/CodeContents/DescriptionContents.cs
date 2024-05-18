@@ -9,7 +9,7 @@ namespace SheetDataTool
 
 		public DescriptionContents(SheetInfoView sheetInfoView, Setting setting) : base(sheetInfoView, setting)
 		{
-			_description = sheetInfoView[1, 0] ?? throw new InvalidSheetRuleException($"Description contents must be contain value at next row cell.", sheetInfoView.GetRealRow(1), sheetInfoView.GetRealColumn(0));
+			_description = sheetInfoView[1, 0] ?? throw new NotExistDescriptionValueException(sheetInfoView.GetRealRow(0));
 		}
 
 		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting, bool madeForSerialization)

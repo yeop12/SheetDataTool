@@ -28,6 +28,7 @@ namespace SheetDataTool
 			}
 
 			private readonly List<ItemInfo> _itemInfos = new();
+			private readonly Dictionary<int, PropertyInfo> _extraItemInfoByColumn = new();
 			private readonly SheetInfoView _sheetInfoView;
 
 			public ElementItemAnalyzer( SheetInfoView sheetInfoView, Setting setting )
@@ -35,9 +36,16 @@ namespace SheetDataTool
 				_sheetInfoView = sheetInfoView;
 
 				var itemReflectionInfos = typeof(T).GetProperties()
+					.Where(x => x.Name != "Row" && x.Name.EndsWith("Column") is false)
 					.Select(x => new {PropertyInfo = x, Description= x.GetCustomAttribute<ContentsElementItemDescriptionAttribute>() ?? throw new ArgumentException($"{typeof(T)} type properties must have {nameof(ContentsElementItemDescriptionAttribute)}.")})
 					.ToList();
-				
+
+				var rowProperty = typeof(T).GetProperty("Row");
+				if (rowProperty is not null)
+				{
+					_extraItemInfoByColumn.Add(-1, rowProperty);
+				}
+
 				const int elementItemHeaderRow = 1;
 				for (var column = 0; column < sheetInfoView.ColumnCount; ++column) 
 				{
@@ -46,14 +54,21 @@ namespace SheetDataTool
 					var itemReflectionInfo =
 						itemReflectionInfos.Find(x =>
 							x.Description.Name.ChangeNotation(Notation.Pascal, setting.InputNotation) == cell) ??
-						throw new InvalidSheetRuleException($"'{cell}' does not belong to element item of '{typeof(T).FullName}'.", sheetInfoView.GetRealRow(elementItemHeaderRow), sheetInfoView.GetRealColumn(column));
+						throw new InvalidContentsElementHeaderException(cell, sheetInfoView.GetRealRow(elementItemHeaderRow), sheetInfoView.GetRealColumn(column), typeof(T));
 					_itemInfos.Add(new ItemInfo(column, itemReflectionInfo.Description, itemReflectionInfo.PropertyInfo));
+
+					var columnProperty = typeof(T).GetProperty($"{itemReflectionInfo.Description.Name}Column");
+					if (columnProperty is not null)
+					{
+						_extraItemInfoByColumn.Add(column, columnProperty);
+					}
 				}
 
 				var essentialItemReflectionInfo = itemReflectionInfos.Find(x => x.Description.IsEssential && _itemInfos.All(y => x.Description.Name != y.Name));
 				if(essentialItemReflectionInfo is not null)
 				{
-					throw new InvalidSheetRuleException($"{typeof(T).FullName} must contain '{essentialItemReflectionInfo.Description.Name}' element item.", sheetInfoView.GetRealRow(elementItemHeaderRow));
+					throw new NotExistEssentialContentsElementHeaderException(essentialItemReflectionInfo.Description.Name,
+						sheetInfoView.GetRealRow(0));
 				}
 			}
 
@@ -61,18 +76,37 @@ namespace SheetDataTool
 			{
 				var result = Activator.CreateInstance<T>();
 
+				if (_extraItemInfoByColumn.TryGetValue(-1, out var rowProperty))
+				{
+					rowProperty.SetValue(result, _sheetInfoView.GetRealRow(row));
+				}
+
 				foreach (var itemInfo in _itemInfos)
 				{
 					var cell = _sheetInfoView[row, itemInfo.Column];
 					if (string.IsNullOrWhiteSpace(cell))
 					{
-						if (itemInfo.IsEssential && itemInfo.AllowsEmpty is false) 
+						if (itemInfo.IsEssential && itemInfo.AllowsEmpty is false)
 						{
-							throw new InvalidSheetRuleException($"'{itemInfo.Name}' element item is not allowed to be null.", _sheetInfoView.GetRealRow(row), _sheetInfoView.GetRealColumn(itemInfo.Column));
+							throw new NotExistEssentialContentsElement(_sheetInfoView.GetRealRow(row),
+								_sheetInfoView.GetRealColumn(itemInfo.Column));
 						}
 						continue;
 					}
-					itemInfo.PropertyInfo.SetValue(result, TypeUtil.ChangeType(cell, itemInfo.PropertyInfo.PropertyType));
+
+					try
+					{
+						itemInfo.PropertyInfo.SetValue(result, TypeUtil.ChangeType(cell, itemInfo.PropertyInfo.PropertyType));
+					}
+					catch
+					{
+						throw new MismatchTypeException(itemInfo.PropertyInfo.PropertyType, cell, row, itemInfo.Column);
+					}
+
+					if (_extraItemInfoByColumn.TryGetValue(itemInfo.Column, out var columnProperty))
+					{
+						columnProperty.SetValue(result, _sheetInfoView.GetRealColumn(itemInfo.Column));
+					}
 				}
 
 				return result;

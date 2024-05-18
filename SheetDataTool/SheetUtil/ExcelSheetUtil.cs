@@ -24,26 +24,31 @@ namespace SheetDataTool
 		{
 			if (_pathBySheetName.TryGetValue(sheetName, out var path) is false)
 			{
-				throw new Exception($"{sheetName} does not exist.");
+				throw new InvalidSheetNameOrPathException(sheetName, null);
 			}
 
+			if (File.Exists(path) is false) 
+			{
+				throw new InvalidSheetNameOrPathException(sheetName, path);
+			}
+			
 			using var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 			using var document = SpreadsheetDocument.Open(stream, false);
 			var workbookPart = document.WorkbookPart;
 			if (workbookPart is null)
 			{
-				throw new Exception("WorkbookPart is null.");
+				throw new InvalidSheetNameOrPathException(sheetName, path);
 			}
 
 			var sheet = workbookPart.Workbook.Descendants<Sheet>().FirstOrDefault(s => s.Name == sheetName);
 			if (sheet?.Id is null) 
 			{
-				throw new Exception($"Sheet does not exist!(Name : {sheetName})");
+				throw new InvalidSheetNameOrPathException(sheetName, path);
 			}
 
 			if (workbookPart.GetPartById(sheet.Id!) is not WorksheetPart worksheetPart)
 			{
-				throw new Exception($"WorkSheetPart is null.(Name : {sheetName})");
+				throw new InvalidSheetNameOrPathException(sheetName, path);
 			}
 
 			var stringTable = workbookPart.GetPartsOfType<SharedStringTablePart>()
@@ -115,10 +120,16 @@ namespace SheetDataTool
 
 		public void RefreshSheetList()
 		{
-			var fileNames = Directory.GetFiles(_path, "*.xlsx");
-
 			_pathBySheetName.Clear();
 
+			if (Directory.Exists(_path) is false)
+			{
+				throw new InvalidDirectoryException(_path);
+			}
+
+			var fileNames = Directory.GetFiles(_path, "*.xlsx");
+
+			var overlapInfos = new List<OverlapSheetNameException.OverlapInfo>();
 			foreach (var fileName in fileNames)
 			{
 				var fileInfo = new FileInfo(fileName);
@@ -134,8 +145,18 @@ namespace SheetDataTool
 				if (sheets is null) continue;
 
 				var sheetNames = sheets.Cast<Sheet>().Where(x => x.Name?.Value is not null).Select(x => x.Name?.Value!).ToList();
+				sheetNames.ForEach(sheetName =>
+				{
+					if (_pathBySheetName.TryAdd(sheetName, fileName) is false)
+					{
+						overlapInfos.Add(new OverlapSheetNameException.OverlapInfo { SheetName = sheetName, SheetPath = fileName });
+					}
+				});
+			}
 
-				sheetNames.ForEach(x => _pathBySheetName.Add(x, fileName));
+			if (overlapInfos.Any())
+			{
+				throw new OverlapSheetNameException(overlapInfos);
 			}
 		}
 	}

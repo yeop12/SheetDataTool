@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -19,7 +19,8 @@ namespace SheetDataTool
 				.First(assembly => assembly.GetName().Name == "System.Runtime");
 			var dotNetStandardAssembly = AppDomain.CurrentDomain.GetAssemblies()
 				.First(assembly => assembly.GetName().Name == "netstandard");
-
+			var collectionsAssembly = AppDomain.CurrentDomain.GetAssemblies().First(x => x.GetName().Name == "System.Collections");
+			
 			var refPaths = new[] 
 			{
 				typeof(object).GetTypeInfo().Assembly.Location,
@@ -29,6 +30,7 @@ namespace SheetDataTool
 				typeof(JsonConvert).GetTypeInfo().Assembly.Location,
 				runtimeAssembly.Location,
 				dotNetStandardAssembly.Location,
+				collectionsAssembly.Location,
 			};
 			var references = refPaths.Select(r => MetadataReference.CreateFromFile(r)).ToArray();
 			var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
@@ -37,9 +39,9 @@ namespace SheetDataTool
 			using var ms = new MemoryStream();
 			var result = compilation.Emit(ms);
 
-			if (!result.Success) 
+			if (!result.Success)
 			{
-				throw new Exception($"Compilation failed.{string.Join('\n', result.Diagnostics)}");
+				throw new FailedCompileException(string.Join('\n', result.Diagnostics));
 			}
 			ms.Seek(0, SeekOrigin.Begin);
 			var assembly = Assembly.Load(ms.ToArray());

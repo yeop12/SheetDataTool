@@ -104,7 +104,7 @@ namespace SheetDataTool
 						switch (settingPlatformInfo.Platform)
 						{
 							case Platform.Unity:
-								sb.WriteLine("var textAsset = Addressables.LoadAssetAsync<TextAsset>($\"{DefaultDirectory}/{typeof(TValue).Name})\").WaitForCompletion();");
+								sb.WriteLine("var textAsset = Addressables.LoadAssetAsync<TextAsset>($\"{DefaultDirectory}/{typeof(TValue).Name}\").WaitForCompletion();");
 								sb.WriteLine("var json = textAsset.text;");
 								break;
 

@@ -26,10 +26,17 @@ if (arguments.Length < 1)
 
 var path = arguments[1];
 
-var sheetUtil = new ExcelSheetUtil(path);
+var setting = new Setting();
+setting.PlatformInfos.Add(new PlatformInfo() 
+{
+	Platform = Platform.CSharp,
+	DefineName = "Server",
+});
 
 try
 {
+	var sheetUtil = new ExcelSheetUtil(path);
+
 	switch (command)
 	{
 		case Command.PrintSheetNames:
@@ -64,7 +71,6 @@ try
 
 			var sheetName = arguments[2];
 			var sheetInfo = sheetUtil.GetSheetInfo(sheetName);
-			var setting = new Setting();
 			var contentsData = new ContentsData(sheetInfo, setting);
 			Console.WriteLine("Contents data");
 			Console.WriteLine(contentsData);
@@ -81,7 +87,6 @@ try
 
 			var sheetName = arguments[2];
 			var sheetInfo = sheetUtil.GetSheetInfo(sheetName);
-			var setting = new Setting();
 			var contentsData = new ContentsData(sheetInfo, setting);
 			Console.WriteLine(contentsData.GetScript(false));
 		}
@@ -97,7 +102,6 @@ try
 
 			var sheetName = arguments[2];
 			var sheetInfo = sheetUtil.GetSheetInfo(sheetName);
-			var setting = new Setting();
 			var contentsData = new ContentsData(sheetInfo, setting);
 			const string assemblyName = "TempLib";
 			var scripts = new[]
@@ -118,25 +122,25 @@ try
 
 		case Command.PrintBaseScript:
 		{
-			Console.WriteLine(ScriptUtil.GetBaseClassScript(new Setting()));
+			Console.WriteLine(ScriptUtil.GetBaseClassScript(setting));
 		}
 			break;
 
 		case Command.PrintDesignInterfaceScript:
 		{
-			Console.WriteLine(ScriptUtil.GetDesignInterfaceScript(new Setting()));
+			Console.WriteLine(ScriptUtil.GetDesignInterfaceScript(setting));
 		}
 			break;
 
 		case Command.PrintDesignClassScript:
 		{
-			Console.WriteLine(ScriptUtil.GetDesignClassScript(new Setting()));
+			Console.WriteLine(ScriptUtil.GetDesignClassScript(setting));
 		}
 			break;
 
 		case Command.PrintConstantClassScript:
 		{
-			Console.WriteLine(ScriptUtil.GetConstantClassScript(new Setting()));
+			Console.WriteLine(ScriptUtil.GetConstantClassScript(setting));
 		}
 			break;
 
@@ -162,7 +166,6 @@ try
 
 			var sheetName = arguments[2];
 			var sheetInfo = sheetUtil.GetSheetInfo(sheetName);
-			var setting = new Setting();
 			var contentsData = new ContentsData(sheetInfo, setting);
 			const string assemblyName = "TempLib";
 			var scripts = new[]
@@ -185,21 +188,9 @@ try
 			throw new ArgumentOutOfRangeException();
 	}
 }
-catch (InvalidSheetRuleException e)
+catch (SheetDataToolException e)
 {
 	Console.WriteLine(e);
-	if (e.Row is not null && e.Column is not null)
-	{
-		Console.WriteLine($"Reference : {ReferenceUtil.GetReference(e.Row.Value, e.Column.Value)}");
-	}
-	else if (e.Row is not null)
-	{
-		Console.WriteLine($"Row reference : {ReferenceUtil.GetRowReference(e.Row.Value)}");
-	}
-	else if (e.Column is not null)
-	{
-		Console.WriteLine($"Column Reference : {ReferenceUtil.GetColumnReference(e.Column.Value)}");
-	}
 }
 catch (Exception e) 
 {

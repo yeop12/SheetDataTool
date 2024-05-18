@@ -11,7 +11,7 @@ namespace SheetDataTool
 
 		public static bool IsContentsCell([NotNullWhen(returnValue: true)] string? value ) => value is { Length: > 0 } && value[0] == '[';
 		
-		public static string? GetContentsName( string value ) 
+		public static string? GetContentsTypeName( string value ) 
 		{
 			var options = value.Split(OptionSeparators, StringSplitOptions.RemoveEmptyEntries);
 			return options is { Length: > 0 } ? options[0] : null;
@@ -22,7 +22,7 @@ namespace SheetDataTool
 			var flagCell = sheetInfoView[0, 0];
 			if (flagCell is null) 
 			{
-				throw new InvalidSheetRuleException("The first cell of CodeContents cannot be null.", sheetInfoView.GetRealRow(0), sheetInfoView.GetRealColumn(0));
+				throw new Exception("The first cell of CodeContents cannot be null.");
 			}
 
 			return flagCell.Split(OptionSeparators, StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -30,7 +30,7 @@ namespace SheetDataTool
 
 		protected static string GetName(SheetInfoView sheetInfoView)
 		{
-			return sheetInfoView[0, 1] ?? throw new InvalidSheetRuleException("NamedCodeContents second cell must not be null.", sheetInfoView.GetRealRow(0), sheetInfoView.GetRealColumn(1));
+			return sheetInfoView[0, 1] ?? throw new NotExistContentsNameException(GetContentsTypeName(sheetInfoView[0, 0]!)!, sheetInfoView.GetRealRow(0), sheetInfoView.GetRealColumn(1));
 		}
 
 		protected static string? GetSummary(SheetInfoView sheetInfoView)

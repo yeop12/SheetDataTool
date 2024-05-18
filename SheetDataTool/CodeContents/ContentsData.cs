@@ -43,33 +43,32 @@ namespace SheetDataTool
 					continue;
 				}
 				
-				var contentsName = CodeContents.GetContentsName(firstCell)?.ChangeNotation(setting.InputNotation, Notation.Pascal);
-				if (contentsName is null or "Name" or "Data")
+				var contentsTypeName = CodeContents.GetContentsTypeName(firstCell)?.ChangeNotation(setting.InputNotation, Notation.Pascal);
+				if (contentsTypeName is null or "Name" or "Data")
 				{
 					break;
+				}
+
+				if(contentsInfos.TryGetValue(contentsTypeName, out var contentsInfo))
+				{
+					if (contentsInfo.CanRegisterMultiple is false)
+					{
+						if (addedContentNames.Add(contentsTypeName) is false)
+						{
+							throw new MultipleUniqueContentsException(contentsTypeName, row);
+						}
+					}
+				}
+				else
+				{
+					throw new InvalidContentsException(contentsTypeName, row);
 				}
 				
 				var endRow = sheetInfo.FindRow(row + 1, 0, x => string.IsNullOrWhiteSpace(x) || CodeContents.IsContentsCell(x));
 				if (endRow == -1) endRow = sheetInfo.RowCount;
 				var sheetInfoView = new SheetInfoView(sheetInfo, row, 0, endRow - 1, sheetInfo.ColumnCount - 1);
-				
-				if(contentsInfos.TryGetValue(contentsName, out var contentsInfo))
-				{
-					var contents = (contentsInfo.ConstructorInfo.Invoke(BindingFlags.DoNotWrapExceptions, null, new object[] { sheetInfoView, setting }, null) as CodeContents)!;
-
-					if (contentsInfo.CanRegisterMultiple is false)
-					{
-						if (addedContentNames.Add(contentsName) is false)
-						{
-							throw new InvalidSheetRuleException($"'{contentsName}' is content that cannot be used multiple times.", row, 0);
-						}
-					}
-					_contents.Add(contents);
-				}
-				else
-				{
-					throw new InvalidSheetRuleException($"{contentsName} is an invalid contents name.", row, 0);
-				}
+				var contents = (contentsInfo.ConstructorInfo.Invoke(BindingFlags.DoNotWrapExceptions, null, new object[] { sheetInfoView, setting }, null) as CodeContents)!;
+				_contents.Add(contents);
 
 				row = endRow;
 			}
@@ -157,12 +156,14 @@ namespace SheetDataTool
 			sb.WriteLine();
 		}
 
-		private ScriptType GetScriptType(bool hasConstant, bool hasDesign)
+		private static ScriptType GetScriptType(bool hasConstant, bool hasDesign)
 		{
-			if (hasConstant && hasDesign) return ScriptType.Full;
-			if (hasConstant) return ScriptType.Constant;
-			if(hasDesign) return ScriptType.Design;
-			return ScriptType.None;
+			return hasConstant switch
+			{
+				true when hasDesign => ScriptType.Full,
+				true => ScriptType.Constant,
+				_ => hasDesign ? ScriptType.Design : ScriptType.None
+			};
 		}
 
 		private abstract class AccessInfo
@@ -260,15 +261,15 @@ namespace SheetDataTool
 
 		private object GetDesignObject( Assembly assembly, string sheetTypeName, Type sheetType )
 		{
-			var nameRow =  _sheetInfo.FindRow(0, 0, x => CodeContents.IsContentsCell(x) && CodeContents.GetContentsName(x) == "Name".ChangeNotation(Notation.Pascal, _setting.InputNotation));
+			var nameRow =  _sheetInfo.FindRow(0, 0, x => CodeContents.IsContentsCell(x) && CodeContents.GetContentsTypeName(x) == "Name".ChangeNotation(Notation.Pascal, _setting.InputNotation));
 			if (nameRow == -1)
 			{
-				throw new InvalidSheetRuleException("Name contents does not exist.");
+				throw new NotExistNameContentsException();
 			}
 
 			if (nameRow == _sheetInfo.RowCount - 1)
 			{
-				throw new InvalidSheetRuleException("Name contents does not contain items.", nameRow, 0);
+				throw new NotExistNameContentsElementException(nameRow);
 			}
 			
 			var accessInfosByColumn = new Dictionary<int, List<AccessInfo>>();
@@ -291,23 +292,19 @@ namespace SheetDataTool
 						previousType = accessInfo.OutputType;
 						properties.Add(accessInfo);
 					}
-					catch (Exception e)
+					catch
 					{
-						throw new InvalidSheetRuleException(e.Message, nameRow + 1, column);
+						throw new InvalidNameContentsElementException(name, nameRow + 1, column);
 					}
 				}
 
 				accessInfosByColumn.Add(column, properties);
 			}
 
-			var dataRow =  _sheetInfo.FindRow(nameRow+2, 0, x => CodeContents.IsContentsCell(x) && CodeContents.GetContentsName(x) == "Data".ChangeNotation(Notation.Pascal, _setting.InputNotation));
+			var dataRow =  _sheetInfo.FindRow(nameRow+2, 0, x => CodeContents.IsContentsCell(x) && CodeContents.GetContentsTypeName(x) == "Data".ChangeNotation(Notation.Pascal, _setting.InputNotation));
 			if (dataRow == -1)
 			{
-				throw new InvalidSheetRuleException("Data contents does not exist.");
-			}
-			if (dataRow == _sheetInfo.RowCount - 1)
-			{
-				throw new InvalidSheetRuleException("Data contents does not contain items.", nameRow, 0);
+				throw new NotExistDataContentsException();
 			}
 
 			var items = (Activator.CreateInstance(typeof(List<>).MakeGenericType(sheetType)) as IList)!;
@@ -327,8 +324,7 @@ namespace SheetDataTool
 						if (isListItem) continue;
 						var lastType = accessInfos.Last().OutputType;
 						if (lastType.IsGenericType && lastType.GetGenericTypeDefinition() == typeof(Nullable<>)) continue;
-						throw new InvalidSheetRuleException(
-							"Cell cannot be empty except when it is a List item or a Nullable type.", row, column);
+						throw new NotExistValueException(row, column);
 					}
 
 					for (var i = 0; i < accessInfos.Count; ++i)
@@ -336,8 +332,15 @@ namespace SheetDataTool
 						var accessInfo = accessInfos[i];
 						if (i == accessInfos.Count - 1)
 						{
-							var value = TypeUtil.ChangeType(cell, accessInfo.OutputType);
-							accessInfo.SetValue(target, value);
+							try
+							{
+								var value = TypeUtil.ChangeType(cell, accessInfo.OutputType);
+								accessInfo.SetValue(target, value);
+							}
+							catch
+							{
+								throw new MismatchTypeException(accessInfo.OutputType, cell, row, column);
+							}
 						}
 						else
 						{
