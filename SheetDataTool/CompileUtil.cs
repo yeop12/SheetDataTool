@@ -19,7 +19,6 @@ namespace SheetDataTool
 				.First(assembly => assembly.GetName().Name == "System.Runtime");
 			var dotNetStandardAssembly = AppDomain.CurrentDomain.GetAssemblies()
 				.First(assembly => assembly.GetName().Name == "netstandard");
-			var collectionsAssembly = AppDomain.CurrentDomain.GetAssemblies().First(x => x.GetName().Name == "System.Collections");
 			
 			var refPaths = new[] 
 			{
@@ -30,7 +29,6 @@ namespace SheetDataTool
 				typeof(JsonConvert).GetTypeInfo().Assembly.Location,
 				runtimeAssembly.Location,
 				dotNetStandardAssembly.Location,
-				collectionsAssembly.Location,
 			};
 			var references = refPaths.Select(r => MetadataReference.CreateFromFile(r)).ToArray();
 			var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
