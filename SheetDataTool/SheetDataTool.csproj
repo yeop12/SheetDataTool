@@ -13,4 +13,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\SheetDataToolForUnity\Assets\Plugins\SheetDataTool\Scripts\**\*.cs">
+      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
+
 </Project>

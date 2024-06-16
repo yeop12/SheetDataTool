@@ -1,11 +1,11 @@
 {
-    "name": "SheetDataTool.Editor",
+    "name": "SheetDataTool",
     "rootNamespace": "",
-    "references": [
-        "GUID:3f2878c67c67dc94aa3699e3d85b4b64"
-    ],
+    "references": [],
     "includePlatforms": [
-        "Editor"
+        "Editor",
+        "WindowsStandalone32",
+        "WindowsStandalone64"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
