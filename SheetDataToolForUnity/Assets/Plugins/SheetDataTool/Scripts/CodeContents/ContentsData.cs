@@ -308,6 +308,7 @@ namespace SheetDataTool
 			}
 
 			var items = (Activator.CreateInstance(typeof(List<>).MakeGenericType(sheetType)) as IList)!;
+			var keys = new HashSet<object>();
 
 			for (var row = dataRow + 1; row < _sheetInfo.RowCount; ++row)
 			{
@@ -355,6 +356,11 @@ namespace SheetDataTool
 					}
 				}
 
+				var key = item.GetType().GetProperty("Key")!.GetValue(item);
+				if (keys.Add(key) is false)
+				{
+					throw new DuplicationKeyException($"{key}", row, 0);
+				}
 				items.Add(item);
 			}
 
