@@ -23,7 +23,8 @@ namespace SheetDataTool
 					sb.WriteLine($"/// <summary> {Comment} </summary>");
 				}
 
-				sb.WriteLine($"public {Type} {Name.ChangeNotation(setting.InputNotation, setting.ScriptRecordPropertyNameNotation)} {{ get; init; }}");
+				var isList = Type.StartsWith("List");
+				sb.WriteLine($"public {Type} {Name.ChangeNotation(setting.InputNotation, setting.ScriptRecordPropertyNameNotation)} {{ get; init; }}{(isList ? " = new();" : "")}");
 				sb.WriteLine();
 			}
 
