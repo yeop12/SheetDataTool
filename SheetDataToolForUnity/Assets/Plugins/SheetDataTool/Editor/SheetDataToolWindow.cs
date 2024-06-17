@@ -506,6 +506,25 @@ namespace SheetDataTool
 		{
 			EditorGUILayout.LabelField("Util", new GUIStyle() { fontSize = 20, normal = new GUIStyleState() { textColor = Color.white } });
 			EditorGUILayout.Separator();
+			
+			if (GUILayout.Button("All"))
+			{
+				var script = ScriptUtil.GetBaseClassScript(_setting);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetBaseClassName(_setting)}.cs", script));
+				script = ScriptUtil.GetDesignInterfaceScript(_setting);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetDesignInterfaceName(_setting)}.cs", script));
+				script = ScriptUtil.GetDesignClassScript(_setting);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetDesignClassName(_setting)}.cs", script));
+				script = ScriptUtil.GetConstantClassScript(_setting);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetConstantClassName(_setting)}.cs", script));
+				script = ScriptUtil.GetFullClassScript(_setting);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetFullClassName(_setting)}.cs", script));
+				script = ScriptUtil.GetExcelDataNotFoundExceptionScript(_setting);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetExcelDataNotFoundExceptionName(_setting)}.cs", script));
+				script = ScriptUtil.GetExternalInitScript(_setting);
+				_setting.PlatformInfos.ForEach(x => File.WriteAllText($"{x.ScriptPath}/{ScriptUtil.GetExternalInitName()}.cs", script));
+				AssetDatabase.Refresh(ImportAssetOptions.Default);
+			}
 
 			if (GUILayout.Button("Base class"))
 			{
