@@ -20,6 +20,7 @@ namespace SheetDataTool
 		public string IgnoreLineSymbol { get; set; } = ";";
 		public string EnumDefaultType { get; set; } = "int";
 		public string NamespaceName { get; set; } = "Sheet";
+		public bool UseDataContents { get; set; } = true;
 		public List<PlatformInfo> PlatformInfos { get; set; } = new();
 
 		public bool IsIgnoreCell([NotNullWhen(false)]string? cell) => string.IsNullOrWhiteSpace(cell) || cell.StartsWith(IgnoreLineSymbol);

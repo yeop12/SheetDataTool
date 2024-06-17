@@ -111,6 +111,12 @@ namespace SheetDataTool
 			set => _setting.NamespaceName = value;
 		}
 
+		public bool UseContentsData
+		{
+			get => _setting.UseDataContents;
+			set => _setting.UseDataContents = value;
+		}
+
 		public ReadOnlyReactiveCollectionWrapper<PlatformInfo> Platforms => new(_platforms);
 
         protected override void OnInit( Tuple<Setting, Action> settingAndOnSave )

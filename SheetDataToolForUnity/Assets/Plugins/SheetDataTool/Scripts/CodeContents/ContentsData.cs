@@ -301,7 +301,11 @@ namespace SheetDataTool
 				accessInfosByColumn.Add(column, properties);
 			}
 
-			var dataRow =  _sheetInfo.FindRow(nameRow+2, 0, x => CodeContents.IsContentsCell(x) && CodeContents.GetContentsTypeName(x) == "Data".ChangeNotation(Notation.Pascal, _setting.InputNotation));
+			var dataRow = _setting.UseDataContents
+				? _sheetInfo.FindRow(nameRow + 2, 0,
+					x => CodeContents.IsContentsCell(x) && CodeContents.GetContentsTypeName(x) ==
+						"Data".ChangeNotation(Notation.Pascal, _setting.InputNotation))
+				: nameRow + 1;
 			if (dataRow == -1)
 			{
 				throw new NotExistDataContentsException();

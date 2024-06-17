@@ -310,6 +310,7 @@ namespace SheetDataTool
 			++EditorGUI.indentLevel;
 			EditorGUILayout.BeginVertical("Box");
 			_setting.NamespaceName = EditorGUILayout.TextField("Namespace name", _setting.NamespaceName);
+			_setting.UseDataContents = EditorGUILayout.Toggle("Use data contents", _setting.UseDataContents);
 			EditorGUILayout.LabelField("Platforms");
 			foreach (var platformInfo in _setting.PlatformInfos)
 			{
