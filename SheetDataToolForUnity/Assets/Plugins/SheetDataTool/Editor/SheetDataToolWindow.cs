@@ -243,7 +243,7 @@ namespace SheetDataTool
 			++EditorGUI.indentLevel;
 			EditorGUILayout.BeginVertical("Box");
 			_setting.InputNotation = (Notation)EditorGUILayout.EnumPopup("Input notation", _setting.InputNotation);
-			_setting.IgnoreLineSymbol = EditorGUILayout.TextField("Ignore line symbol", new string(_setting.IgnoreLineSymbol, 1))[0];
+			_setting.IgnoreLineSymbol = EditorGUILayout.TextField("Ignore line symbol", _setting.IgnoreLineSymbol);
 			_setting.EnumDefaultType = EditorGUILayout.TextField("Enum default type", _setting.EnumDefaultType);
 			EditorGUILayout.EndVertical();
 			--EditorGUI.indentLevel;

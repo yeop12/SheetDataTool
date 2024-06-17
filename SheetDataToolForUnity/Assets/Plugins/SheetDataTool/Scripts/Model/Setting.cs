@@ -17,7 +17,7 @@ namespace SheetDataTool
 		public Notation ScriptInterfaceNameNotation { get; set; } = Notation.Pascal;
 		public Notation ScriptFunctionNameNotation { get; set; } = Notation.Pascal;
 		public string ScriptInterfaceNamePrefix { get; set; } = "I";
-		public char IgnoreLineSymbol { get; set; } = ';';
+		public string IgnoreLineSymbol { get; set; } = ";";
 		public string EnumDefaultType { get; set; } = "int";
 		public string NamespaceName { get; set; } = "Sheet";
 		public List<PlatformInfo> PlatformInfos { get; set; } = new();

@@ -30,7 +30,7 @@ namespace SheetDataTool
 		public string IgnoreLineSymbol
 		{
             get => $"{_setting.IgnoreLineSymbol}";
-            set => _setting.IgnoreLineSymbol = string.IsNullOrWhiteSpace(value) ? ' ' : value[0];
+            set => _setting.IgnoreLineSymbol = value;
 		}
 
 		public string EnumDefaultType
