@@ -44,6 +44,7 @@ namespace SheetDataTool
 		}
 
 		private readonly bool _isGlobal;
+		private readonly bool _useFlag;
 		private readonly string _type;
 		private readonly string _name;
 		private readonly string? _summary;
@@ -51,6 +52,7 @@ namespace SheetDataTool
 		public EnumContents(SheetInfoView sheetInfoView, Setting setting) : base(sheetInfoView, setting)
 		{
 			_isGlobal = HasOption("Global", setting);
+			_useFlag = HasOption("Flag", setting);
 			_type = UsableTypes.FirstOrDefault(x => HasOption(x)) ?? setting.EnumDefaultType;
 			_name = GetName(sheetInfoView);
 			_summary = GetSummary(sheetInfoView);
@@ -64,6 +66,10 @@ namespace SheetDataTool
 			}
 
 			WriteSummary(_summary, sb);
+			if (_useFlag)
+			{
+				sb.WriteLine("[Flags]");
+			}
 			sb.WriteLine("[JsonConverter(typeof(StringEnumConverter))]");
 			using (sb.StartScope($"public enum {_name.ChangeNotation(setting.InputNotation, setting.ScriptEnumNameNotation)} : {_type}"))
 			{
