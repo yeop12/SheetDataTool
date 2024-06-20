@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
-using SheetDataTool.Model;
 using UniEx.UI;
 using UniRx;
+using UnityEngine;
 using Zenject;
 
 namespace SheetDataTool
@@ -56,13 +57,13 @@ namespace SheetDataTool
 								File.WriteAllText($"{x.DataPath}/{Model}.json", json));
 						}
 					});
-					_toolModel.Logs.Add(new Log($"{Model} sheet export success.", Model));
+					_toolModel.Logs.Add(new Model.Log($"{Model} sheet export success.", Model));
 					_toolModel.LogCount.Value += 1;
 					_successAnimatorTrigger.SetValueAndForceNotify("Success");
 				}
 				catch (Exception e)
 				{
-					_toolModel.Logs.Add(new Log(e, Model));
+					_toolModel.Logs.Add(new Model.Log(e, Model));
 					_toolModel.LogCount.Value = 0;
 					_fixedUIManager.Open<LogUI>(_toolModel.Logs);
 				}
@@ -84,8 +85,24 @@ namespace SheetDataTool
 
 		public void OnOpenExcel()
 	    {
+		    var startInfo = new ProcessStartInfo
+		    {
+			    CreateNoWindow = true,
+			    UseShellExecute = false,
+			    FileName = $"{Application.streamingAssetsPath}/ExcelHelper.exe",
+			    WindowStyle = ProcessWindowStyle.Hidden,
+				ArgumentList = { "OpenSheet", Path.GetFullPath(_toolModel.SheetUtil.GetPath(Model)), Model },
+		    };
 
-	    }
+		    try
+		    {
+			    using var exeProcess = Process.Start(startInfo);
+		    }
+		    catch(Exception e)
+		    {
+				_toolModel.Logs.Add(new Model.Log($"Open sheet failed.({e})", Model));
+		    }
+		}
 
 	    public void OnToggleBookMark(bool isOn)
 	    {
