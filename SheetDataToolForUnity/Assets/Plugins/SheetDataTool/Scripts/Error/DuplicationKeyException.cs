@@ -1,6 +1,6 @@
 namespace SheetDataTool
 {
-	public class DuplicationKeyException : SheetDataToolException
+	public class DuplicationKeyException : SheetDataToolException, ISheetReference
 	{
 		public int Row { get; }
 		public int Column { get; }

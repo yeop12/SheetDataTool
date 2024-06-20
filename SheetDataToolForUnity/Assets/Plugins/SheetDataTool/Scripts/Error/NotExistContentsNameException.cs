@@ -1,6 +1,6 @@
 ﻿namespace SheetDataTool
 {
-	public class NotExistContentsNameException : SheetDataToolException
+	public class NotExistContentsNameException : SheetDataToolException, ISheetReference
 	{
 		public string ContentsTypeName { get; }
 		public int Row { get; }

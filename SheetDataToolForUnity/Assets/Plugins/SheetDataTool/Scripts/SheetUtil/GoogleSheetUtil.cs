@@ -74,5 +74,7 @@ namespace SheetDataTool
 			var spreadSheet = _service.Spreadsheets.Get(_spreadSheetID).Execute();
 			_sheets = spreadSheet.Sheets;
 		}
+
+		public string GetPath(string sheetName) => _spreadSheetID;
 	}
 }

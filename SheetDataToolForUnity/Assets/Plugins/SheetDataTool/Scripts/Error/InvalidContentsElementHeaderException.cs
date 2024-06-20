@@ -2,7 +2,7 @@
 
 namespace SheetDataTool
 {
-	public class InvalidContentsElementHeaderException : SheetDataToolException
+	public class InvalidContentsElementHeaderException : SheetDataToolException, ISheetReference
 	{
 		public string ElementHeaderName { get; }
 		public int Row { get; }

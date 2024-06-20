@@ -1,8 +1,9 @@
 ﻿namespace SheetDataTool
 {
-	public class NotExistNameContentsElementException : SheetDataToolException
+	public class NotExistNameContentsElementException : SheetDataToolException, ISheetReference
 	{
 		public int Row { get; }
+		public int Column => 0;
 
 		public NotExistNameContentsElementException(int row)
 		{

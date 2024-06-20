@@ -1,9 +1,10 @@
 ﻿namespace SheetDataTool
 {
-	public class NotExistEssentialContentsElementHeaderException : SheetDataToolException
+	public class NotExistEssentialContentsElementHeaderException : SheetDataToolException, ISheetReference
 	{
 		public string EssentialElementHeaderName { get; }
 		public int Row { get; }
+		public int Column => 0;
 
 		public NotExistEssentialContentsElementHeaderException(string essentialElementHeaderName, int row)
 		{

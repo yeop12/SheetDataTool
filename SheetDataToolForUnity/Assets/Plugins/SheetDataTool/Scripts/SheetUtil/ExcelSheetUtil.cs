@@ -27,11 +27,11 @@ namespace SheetDataTool
 				throw new InvalidSheetNameOrPathException(sheetName, null);
 			}
 
-			if (File.Exists(path) is false) 
+			if (File.Exists(path) is false)
 			{
 				throw new InvalidSheetNameOrPathException(sheetName, path);
 			}
-			
+
 			using var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 			using var document = SpreadsheetDocument.Open(stream, false);
 			var workbookPart = document.WorkbookPart;
@@ -41,7 +41,7 @@ namespace SheetDataTool
 			}
 
 			var sheet = workbookPart.Workbook.Descendants<Sheet>().FirstOrDefault(s => s.Name == sheetName);
-			if (sheet?.Id is null) 
+			if (sheet?.Id is null)
 			{
 				throw new InvalidSheetNameOrPathException(sheetName, path);
 			}
@@ -55,11 +55,12 @@ namespace SheetDataTool
 				.FirstOrDefault()?.SharedStringTable.ToList();
 
 			var worksheet = worksheetPart.Worksheet;
-			var sheetLastReference = ReferenceUtil.ParseReference(worksheet.SheetDimension!.Reference!.Value!.Split(':').Last());
+			var sheetLastReference =
+				ReferenceUtil.ParseReference(worksheet.SheetDimension!.Reference!.Value!.Split(':').Last());
 			var cellData = new string[sheetLastReference.rowIndex + 1, sheetLastReference.columnIndex + 1];
 
 			var sheetData = worksheet.Elements<SheetData>().First();
-			foreach (var row in sheetData.Elements<Row>()) 
+			foreach (var row in sheetData.Elements<Row>())
 			{
 				foreach (var cell in row.Elements<Cell>())
 				{
@@ -144,12 +145,14 @@ namespace SheetDataTool
 				var sheets = wbPart?.Workbook.Sheets;
 				if (sheets is null) continue;
 
-				var sheetNames = sheets.Cast<Sheet>().Where(x => x.Name?.Value is not null).Select(x => x.Name?.Value!).ToList();
+				var sheetNames = sheets.Cast<Sheet>().Where(x => x.Name?.Value is not null).Select(x => x.Name?.Value!)
+					.ToList();
 				sheetNames.ForEach(sheetName =>
 				{
 					if (_pathBySheetName.TryAdd(sheetName, fileName) is false)
 					{
-						overlapInfos.Add(new OverlapSheetNameException.OverlapInfo { SheetName = sheetName, SheetPath = fileName });
+						overlapInfos.Add(new OverlapSheetNameException.OverlapInfo
+							{ SheetName = sheetName, SheetPath = fileName });
 					}
 				});
 			}
@@ -158,6 +161,12 @@ namespace SheetDataTool
 			{
 				throw new OverlapSheetNameException(overlapInfos);
 			}
+		}
+
+		public string GetPath(string sheetName)
+		{
+			_pathBySheetName.TryGetValue(sheetName, out var path);
+			return path;
 		}
 	}
 }

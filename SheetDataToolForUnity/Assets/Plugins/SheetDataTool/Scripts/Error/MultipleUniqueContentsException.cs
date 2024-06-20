@@ -1,9 +1,10 @@
 ﻿namespace SheetDataTool
 {
-	public class MultipleUniqueContentsException : SheetDataToolException
+	public class MultipleUniqueContentsException : SheetDataToolException, ISheetReference
 	{
 		public string ContentsName { get; }
 		public int Row { get; }
+		public int Column => 0;
 
 		public MultipleUniqueContentsException(string contentsName, int row)
 		{

@@ -1,6 +1,6 @@
 ﻿namespace SheetDataTool
 {
-	public class InvalidNameContentsElementException : SheetDataToolException
+	public class InvalidNameContentsElementException : SheetDataToolException, ISheetReference
 	{
 		public string Name { get; }
 		public int Row { get; }

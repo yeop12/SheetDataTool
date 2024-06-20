@@ -2,7 +2,7 @@
 
 namespace SheetDataTool
 {
-	public class MismatchTypeException : SheetDataToolException
+	public class MismatchTypeException : SheetDataToolException, ISheetReference
 	{
 		public Type Type { get; }
 		public string Value { get; }

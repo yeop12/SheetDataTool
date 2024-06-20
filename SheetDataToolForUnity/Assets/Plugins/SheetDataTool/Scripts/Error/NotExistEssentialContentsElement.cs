@@ -1,6 +1,6 @@
 ﻿namespace SheetDataTool
 {
-	public class NotExistEssentialContentsElement : SheetDataToolException
+	public class NotExistEssentialContentsElement : SheetDataToolException, ISheetReference
 	{
 		public int Row { get; }
 		public int Column { get; }

@@ -9,7 +9,7 @@ namespace SheetDataTool
 
 		public DescriptionContents(SheetInfoView sheetInfoView, Setting setting) : base(sheetInfoView, setting)
 		{
-			_description = sheetInfoView[1, 0] ?? throw new NotExistDescriptionValueException(sheetInfoView.GetRealRow(0));
+			_description = sheetInfoView[1, 0] ?? throw new NotExistDescriptionValueException(sheetInfoView.GetRealRow(0) + 1);
 		}
 
 		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting, bool madeForSerialization)

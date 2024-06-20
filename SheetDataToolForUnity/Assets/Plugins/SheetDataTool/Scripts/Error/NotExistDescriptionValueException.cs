@@ -1,8 +1,9 @@
 ﻿namespace SheetDataTool
 {
-	public class NotExistDescriptionValueException : SheetDataToolException
+	public class NotExistDescriptionValueException : SheetDataToolException, ISheetReference
 	{
 		public int Row { get; }
+		public int Column => 0;
 
 		public NotExistDescriptionValueException(int row)
 		{
@@ -11,7 +12,7 @@
 
 		public override string ToString()
 		{
-			return $"Description value does not exist.(Cell reference : {ReferenceUtil.GetReference(Row + 1, 0)})";
+			return $"Description value does not exist.(Cell reference : {ReferenceUtil.GetReference(Row, 0)})";
 		}
 	}
 }
