@@ -111,7 +111,7 @@ namespace SheetDataTool
 					}
 
 					var reference = ReferenceUtil.ParseReference(cell.CellReference!.Value!);
-					cellData[reference.rowIndex, reference.columnIndex] = value;
+					cellData[reference.rowIndex, reference.columnIndex] = string.IsNullOrEmpty(value) ? null : value;
 				}
 			}
 
