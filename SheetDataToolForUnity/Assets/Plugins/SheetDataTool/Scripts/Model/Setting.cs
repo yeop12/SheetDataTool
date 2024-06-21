@@ -17,6 +17,9 @@ namespace SheetDataTool
 		public Notation ScriptPrivateVariableNameNotation { get; set; } = Notation.Camel;
 		public string ScriptPrivateVariableNamePrefix { get; set; } = "_";
 
+		public string ReferenceReplacementSymbol { get; set; } = "Id";
+		public string ReferenceReplacementWord { get; set; } = "Reference";
+
 		public Notation ScriptInterfaceNameNotation { get; set; } = Notation.Pascal;
 		public string ScriptInterfaceNamePrefix { get; set; } = "I";
 

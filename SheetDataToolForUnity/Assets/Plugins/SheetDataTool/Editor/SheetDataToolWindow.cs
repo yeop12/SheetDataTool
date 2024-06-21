@@ -273,6 +273,15 @@ namespace SheetDataTool
 			--EditorGUI.indentLevel;
 			EditorGUILayout.Separator();
 
+			EditorGUILayout.LabelField("Reference");
+			++EditorGUI.indentLevel;
+			EditorGUILayout.BeginVertical("Box");
+			_setting.ReferenceReplacementSymbol = EditorGUILayout.TextField("Replacement symbol", _setting.ReferenceReplacementSymbol);
+			_setting.ReferenceReplacementWord = EditorGUILayout.TextField("Replacement word", _setting.ReferenceReplacementWord);
+			EditorGUILayout.EndVertical();
+			--EditorGUI.indentLevel;
+			EditorGUILayout.Separator();
+
 			EditorGUILayout.LabelField("Interface");
 			++EditorGUI.indentLevel;
 			EditorGUILayout.BeginVertical("Box");

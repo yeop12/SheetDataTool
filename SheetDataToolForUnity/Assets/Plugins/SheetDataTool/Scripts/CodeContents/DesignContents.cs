@@ -20,6 +20,9 @@ namespace SheetDataTool
 			public bool IsPrimaryKey { get; init; }
 
 			[ContentsElementItemDescription(false)]
+			public string? Reference { get; init; }
+
+			[ContentsElementItemDescription(false)]
 			public string? Comment { get; init; }
 
 			public void WriteScript(ScopedStringBuilder sb, Setting setting, bool madeForSerialization )
@@ -32,31 +35,51 @@ namespace SheetDataTool
 					sb.WriteLine($"/// <summary> {Comment} </summary>");
 				}
 				
+				var hasReference = string.IsNullOrWhiteSpace(Reference) is false;
+
 				if (Type.StartsWith("List"))
 				{
 					sb.WriteLine($"[JsonProperty(nameof({publicName}))]");
 					sb.WriteLine($"private {Type} {privateName} {{ get; init; }} = new();");
 					sb.WriteLine();
 
-					if (madeForSerialization)
-					{
-						sb.WriteLine($"public bool ShouldSerialize{privateName}() => _serializeDesign;");
-					}
-
 					sb.WriteLine("[JsonIgnore]");
 					sb.WriteLine($"public {Type.Replace("List", "IReadOnlyList")} {publicName} => {privateName};");
+					sb.WriteLine();
+
+					if (hasReference)
+					{
+						var referencePrivateName = privateName.Replace(setting.ReferenceReplacementSymbol,
+							setting.ReferenceReplacementWord);
+						var referencePublicName = publicName.Replace(setting.ReferenceReplacementSymbol,
+							setting.ReferenceReplacementWord);
+						sb.WriteLine("[JsonIgnore]");
+						sb.WriteLine($"private List<{Reference}> {referencePrivateName};");
+						sb.WriteLine();
+						sb.WriteLine("[JsonIgnore]");
+						sb.WriteLine($"public IReadOnlyList<{Reference}> {referencePublicName} => {referencePrivateName} ??= {publicName}.Select(x => {Reference}.Find(x)).ToList();");
+						sb.WriteLine();
+					}
 				}
 				else
 				{
 					sb.WriteLine($"public {Type} {publicName} {{ get; init; }}");
+					sb.WriteLine();
 
-					if (madeForSerialization)
+					if (hasReference)
 					{
-						sb.WriteLine($"public bool ShouldSerialize{publicName}() => _serializeDesign;");
+						var referencePrivateName = privateName.Replace(setting.ReferenceReplacementSymbol,
+							setting.ReferenceReplacementWord);
+						var referencePublicName = publicName.Replace(setting.ReferenceReplacementSymbol,
+							setting.ReferenceReplacementWord);
+						sb.WriteLine("[JsonIgnore]");
+						sb.WriteLine($"private {Reference} {referencePrivateName};");
+						sb.WriteLine();
+						sb.WriteLine("[JsonIgnore]");
+						sb.WriteLine($"public {Reference} {referencePublicName} => {referencePrivateName} ??= {Reference}.Find({publicName});");
+						sb.WriteLine();
 					}
 				}
-
-				sb.WriteLine();
 			}
 
 			public override string ToString()

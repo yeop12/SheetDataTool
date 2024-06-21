@@ -75,6 +75,18 @@ namespace SheetDataTool
 			set => _setting.ScriptPrivateVariableNamePrefix = value;
 		}
 
+		public string ReferenceReplacementSymbol
+		{
+			get => _setting.ReferenceReplacementSymbol;
+			set => _setting.ReferenceReplacementSymbol = value;
+		}
+
+		public string ReferenceReplacementWord
+		{
+			get => _setting.ReferenceReplacementWord;
+			set => _setting.ReferenceReplacementWord = value;
+		}
+
 		public int InterfaceNameNotationIndex
 		{
 			get => (int)_setting.ScriptInterfaceNameNotation;

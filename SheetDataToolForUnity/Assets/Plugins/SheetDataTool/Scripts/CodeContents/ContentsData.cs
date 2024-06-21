@@ -139,6 +139,7 @@ namespace SheetDataTool
 			var basicItems = new List<string>
 			{
 				"System",
+				"System.Linq",
 				"System.Collections",
 				"System.Collections.Generic",
 				"Newtonsoft.Json",
