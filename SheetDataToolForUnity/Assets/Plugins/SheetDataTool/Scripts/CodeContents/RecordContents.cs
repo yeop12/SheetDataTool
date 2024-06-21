@@ -23,9 +23,22 @@ namespace SheetDataTool
 					sb.WriteLine($"/// <summary> {Comment} </summary>");
 				}
 
-				var isList = Type.StartsWith("List");
-				sb.WriteLine($"public {Type} {setting.ToPublicVariableName(Name)} {{ get; init; }}{(isList ? " = new();" : "")}");
-				sb.WriteLine();
+				var publicName = setting.ToPublicVariableName(Name);
+				var privateName = setting.ToPrivateVariableName(Name);
+				
+				if (Type.StartsWith("List"))
+				{
+					sb.WriteLine($"[JsonProperty(nameof({publicName}))]");
+					sb.WriteLine($"private {Type} {privateName} {{ get; init; }} = new();");
+					sb.WriteLine();
+
+					sb.WriteLine("[JsonIgnore]");
+					sb.WriteLine($"public {Type.Replace("List", "IReadOnlyList")} {publicName} => {privateName};");
+				}
+				else
+				{
+					sb.WriteLine($"public {Type} {publicName} {{ get; init; }}");
+				}
 			}
 
 			public override string ToString()
