@@ -28,8 +28,8 @@ namespace SheetDataTool
 
 			public void WriteScript(ScopedStringBuilder sb, Setting setting, bool madeForSerialization )
 			{
-				var privateItemName = $"{setting.ScriptPrivateVariableNamePrefix}{Name.ChangeNotation(setting.InputNotation, setting.ScriptPrivateVariableNameNotation)}";
-				var publicItemName = Name.ChangeNotation(setting.InputNotation, setting.ScriptPublicVariableNameNotation);
+				var privateItemName = setting.ToPrivateVariableName(Name);
+				var publicItemName = setting.ToPublicVariableName(Name);
 
 				if (madeForSerialization)
 				{
@@ -49,8 +49,7 @@ namespace SheetDataTool
 				{
 					using (sb.StartScope("get"))
 					{
-						var loadFunctionName =
-							"LoadData".ChangeNotation(Notation.Pascal, setting.ScriptFunctionNameNotation);
+						var loadFunctionName = setting.PascalToFunctionName("LoadData");
 						sb.WriteLine($"if(IsLoaded is false) {loadFunctionName}();");
 						sb.WriteLine($"return {privateItemName};");
 					}
@@ -60,7 +59,7 @@ namespace SheetDataTool
 
 			public void SetData(object obj, Setting setting) 
 			{
-				var privateItemName = $"{setting.ScriptPrivateVariableNamePrefix}{Name.ChangeNotation(setting.InputNotation, setting.ScriptPrivateVariableNameNotation)}";
+				var privateItemName = setting.ToPrivateVariableName(Name);
 				var propertyInfo = obj.GetType().GetProperty(privateItemName, BindingFlags.Static | BindingFlags.GetProperty | BindingFlags.NonPublic);
 				if (propertyInfo is null) throw new Exception($"{obj.GetType()} type does not contain {privateItemName} property.");
 				if (TypeUtil.IsBasicType(Type))

@@ -24,8 +24,8 @@ namespace SheetDataTool
 
 			public void WriteScript(ScopedStringBuilder sb, Setting setting, bool madeForSerialization )
 			{
-				var publicName = Name.ChangeNotation(setting.InputNotation, setting.ScriptPublicVariableNameNotation);
-				var privateName = $"{setting.ScriptPrivateVariableNamePrefix}{Name.ChangeNotation(setting.InputNotation, setting.ScriptPrivateVariableNameNotation)}";
+				var publicName = setting.ToPublicVariableName(Name);
+				var privateName = setting.ToPrivateVariableName(Name);
 				
 				if (Comment is not null)
 				{
@@ -79,7 +79,7 @@ namespace SheetDataTool
 				? primaryKeyElements.First().Name 
 				: $"({primaryKeyElements.Select(x => x.Name).Aggregate(( x, y ) => $"{x}, {y}")})";
 			InheritedInterfaceNames = sheetInfoView[0, 1]?.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
-				.Select(x => x.ChangeNotation(setting.InputNotation, setting.ScriptClassNameNotation)).ToList();
+				.Select(setting.ToRecordName).ToList();
 		}
 
 		public override void WriteScript(ScopedStringBuilder sb, bool isGlobal, Setting setting, bool madeForSerialization )

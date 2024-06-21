@@ -89,7 +89,7 @@ namespace SheetDataTool
 			var designContents = _contents.OfType<DesignContents>().FirstOrDefault();
 			var constantContents = _contents.OfType<ConstantContents>().FirstOrDefault();
 			var keyTypeName = designContents?.KeyType;
-			var sheetName = _sheetInfo.Name.ChangeNotation(_setting.InputNotation, _setting.ScriptClassNameNotation);
+			var sheetName = _setting.ToRecordName(_sheetInfo.Name);
 
 			WriteUsingNamespaces(sb);
 
@@ -234,14 +234,12 @@ namespace SheetDataTool
 			{
 				var propertyName = TypeUtil.UnityTypeNames.Contains(parentType.Name)
 					? value
-					: value.ChangeNotation(setting.InputNotation,
-						setting.ScriptPublicVariableNameNotation);
+					: setting.ToPublicVariableName(value);
 				_propertyInfo = parentType.GetProperty(propertyName) ?? throw new Exception("Property does not exist.");
 				if (_propertyInfo.PropertyType.IsGenericType &&
 				    _propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(IReadOnlyList<>))
 				{
-					propertyName = @$"{setting.ScriptPrivateVariableNamePrefix}{value.ChangeNotation(setting.InputNotation,
-						setting.ScriptPrivateVariableNameNotation)}";
+					propertyName = setting.ToPrivateVariableName(value);
 					_propertyInfo = parentType.GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Instance) ?? throw new Exception("Property does not exist.");
 				}
 				
@@ -387,8 +385,7 @@ namespace SheetDataTool
 
 		public string Serialize(Assembly assembly)
 		{
-			var sheetTypeName =
-				_sheetInfo.Name.ChangeNotation(_setting.InputNotation, _setting.ScriptClassNameNotation);
+			var sheetTypeName = _setting.ToRecordName(_sheetInfo.Name);
 			var sheetType = assembly.GetType($"{_setting.NamespaceName ?? ""}.{sheetTypeName}")!;
 
 			var hasConstant = HasContents<ConstantContents>();

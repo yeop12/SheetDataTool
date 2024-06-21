@@ -24,7 +24,7 @@ namespace SheetDataTool
 				}
 
 				var isList = Type.StartsWith("List");
-				sb.WriteLine($"public {Type} {Name.ChangeNotation(setting.InputNotation, setting.ScriptRecordPropertyNameNotation)} {{ get; init; }}{(isList ? " = new();" : "")}");
+				sb.WriteLine($"public {Type} {setting.ToPublicVariableName(Name)} {{ get; init; }}{(isList ? " = new();" : "")}");
 				sb.WriteLine();
 			}
 
@@ -54,7 +54,7 @@ namespace SheetDataTool
 			
 			WriteSummary(_summary, sb);
 			sb.WriteLine("[Serializable]");
-			using (sb.StartScope($"public partial record {_name.ChangeNotation(setting.InputNotation, setting.ScriptRecordNameNotation)}"))
+			using (sb.StartScope($"public partial record {setting.ToRecordName(_name)}"))
 			{
 				Elements.ForEach(x => x.WriteScript(sb, setting));
 			}

@@ -39,12 +39,6 @@ namespace SheetDataTool
             set => _setting.EnumDefaultType = value;
 		}
 
-		public int ClassNameNotationIndex
-		{
-			get => (int)_setting.ScriptClassNameNotation;
-			set => _setting.ScriptClassNameNotation = (Notation)value;
-		}
-
 		public int EnumNameNotationIndex
 		{
 			get => (int)_setting.ScriptEnumNameNotation;
@@ -61,12 +55,6 @@ namespace SheetDataTool
 		{
 			get => (int)_setting.ScriptRecordNameNotation;
 			set => _setting.ScriptRecordNameNotation = (Notation)value;
-		}
-
-		public int RecordPropertyNameNotationIndex
-		{
-			get => (int)_setting.ScriptRecordPropertyNameNotation;
-			set => _setting.ScriptRecordPropertyNameNotation = (Notation)value;
 		}
 
 		public int PublicVariableNameNotationIndex

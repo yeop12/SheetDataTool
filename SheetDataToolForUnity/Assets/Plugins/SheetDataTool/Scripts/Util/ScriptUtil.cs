@@ -5,10 +5,9 @@ namespace SheetDataTool
 {
 	public static class ScriptUtil
 	{
-		private static string ToFunctionName(this string name, Setting setting) =>
-			name.ChangeNotation(Notation.Pascal, setting.ScriptFunctionNameNotation);
+		private static string ToFunctionName(this string name, Setting setting) => setting.PascalToFunctionName(name);
 
-		public static string GetBaseClassName(Setting setting) => "BaseSheetDataHelper".ChangeNotation(Notation.Pascal, setting.ScriptClassNameNotation);
+		public static string GetBaseClassName(Setting setting) => "BaseSheetDataHelper".ChangeNotation(Notation.Pascal, setting.ScriptRecordNameNotation);
 
 		public static string GetBaseClassScript(Setting setting)
 		{
@@ -130,7 +129,7 @@ namespace SheetDataTool
 			return sb.ToString();
 		}
 
-		public static string GetDesignClassName(Setting setting) => "DesignSheetDataHelper".ChangeNotation(Notation.Pascal, setting.ScriptClassNameNotation);
+		public static string GetDesignClassName(Setting setting) => "DesignSheetDataHelper".ChangeNotation(Notation.Pascal, setting.ScriptRecordNameNotation);
 
 		public static string GetDesignClassScript(Setting setting)
 		{
@@ -184,7 +183,7 @@ namespace SheetDataTool
 				}
 				sb.WriteLine();
 
-				var findFunctionName = "Find".ChangeNotation(Notation.Pascal, setting.ScriptFunctionNameNotation);
+				var findFunctionName = setting.PascalToFunctionName("Find");
 				using (sb.StartScope($"public static TValue {findFunctionName}(TKey key, bool throwNotFoundException = false)"))
 				{
 					using (sb.StartScope($"if ({dataPrivateName}.Value.TryGetValue(key, out var result) is false && throwNotFoundException)"))
@@ -201,7 +200,7 @@ namespace SheetDataTool
 				}
 				sb.WriteLine();
 
-				var findAllFunctionName = "FindAll".ChangeNotation(Notation.Pascal, setting.ScriptFunctionNameNotation);
+				var findAllFunctionName = setting.PascalToFunctionName("FindAll");
 				using (sb.StartScope($"public static IEnumerable<TValue> {findAllFunctionName}( Predicate<TValue> match ) "))
 				{
 					sb.WriteLine($"return {dataPrivateName}.Value.Values.Where(match.Invoke);");
@@ -212,7 +211,7 @@ namespace SheetDataTool
 			return sb.ToString();
 		}
 
-		public static string GetConstantClassName(Setting setting) => "ConstantSheetDataHelper".ChangeNotation(Notation.Pascal, setting.ScriptClassNameNotation);
+		public static string GetConstantClassName(Setting setting) => "ConstantSheetDataHelper".ChangeNotation(Notation.Pascal, setting.ScriptRecordNameNotation);
 
 		public static string GetConstantClassScript(Setting setting)
 		{
@@ -256,7 +255,7 @@ namespace SheetDataTool
 			return sb.ToString();
 		}
 
-		public static string GetFullClassName(Setting setting) => "FullSheetDataHelper".ChangeNotation(Notation.Pascal, setting.ScriptClassNameNotation);
+		public static string GetFullClassName(Setting setting) => "FullSheetDataHelper".ChangeNotation(Notation.Pascal, setting.ScriptRecordNameNotation);
 
 		public static string GetFullClassScript(Setting setting)
 		{
@@ -322,7 +321,7 @@ namespace SheetDataTool
 				}
 				sb.WriteLine();
 
-				var findFunctionName = "Find".ChangeNotation(Notation.Pascal, setting.ScriptFunctionNameNotation);
+				var findFunctionName = setting.PascalToFunctionName("Find");
 				using (sb.StartScope($"public static TValue {findFunctionName}(TKey key, bool throwNotFoundException = false)"))
 				{
 					sb.WriteLine($"if (IsLoaded is false) {loadDataFunctionName}();");
@@ -353,7 +352,7 @@ namespace SheetDataTool
 			return sb.ToString();
 		}
 
-		public static string GetExcelDataNotFoundExceptionName(Setting setting) => "ExcelDataNotFoundException".ChangeNotation(Notation.Pascal, setting.ScriptClassNameNotation);
+		public static string GetExcelDataNotFoundExceptionName(Setting setting) => "ExcelDataNotFoundException".ChangeNotation(Notation.Pascal, setting.ScriptRecordNameNotation);
 
 		public static string GetExcelDataNotFoundExceptionScript(Setting setting)
 		{

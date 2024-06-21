@@ -239,7 +239,7 @@ namespace SheetDataTool
 			EditorGUILayout.LabelField("Setting", new GUIStyle() { fontSize = 20, normal = new GUIStyleState() { textColor = Color.white } });
 			EditorGUILayout.Separator();
 
-			EditorGUILayout.LabelField("Google Sheet");
+			EditorGUILayout.LabelField("Import Sheet");
 			++EditorGUI.indentLevel;
 			EditorGUILayout.BeginVertical("Box");
 			_setting.InputNotation = (Notation)EditorGUILayout.EnumPopup("Input notation", _setting.InputNotation);
@@ -252,14 +252,6 @@ namespace SheetDataTool
 			EditorGUILayout.LabelField("Export Script");
 			++EditorGUI.indentLevel;
 			EditorGUILayout.BeginVertical("Box");
-
-			EditorGUILayout.LabelField("Class");
-			++EditorGUI.indentLevel;
-			EditorGUILayout.BeginVertical("Box");
-			_setting.ScriptClassNameNotation = (Notation)EditorGUILayout.EnumPopup("Name notation", _setting.ScriptClassNameNotation);
-			EditorGUILayout.EndVertical();
-			--EditorGUI.indentLevel;
-			EditorGUILayout.Separator();
 
 			EditorGUILayout.LabelField("Enum");
 			++EditorGUI.indentLevel;
@@ -274,14 +266,6 @@ namespace SheetDataTool
 			++EditorGUI.indentLevel;
 			EditorGUILayout.BeginVertical("Box");
 			_setting.ScriptRecordNameNotation = (Notation)EditorGUILayout.EnumPopup("Name notation", _setting.ScriptRecordNameNotation);
-			_setting.ScriptRecordPropertyNameNotation = (Notation)EditorGUILayout.EnumPopup("Property name notation", _setting.ScriptRecordPropertyNameNotation);
-			EditorGUILayout.EndVertical();
-			--EditorGUI.indentLevel;
-			EditorGUILayout.Separator();
-
-			EditorGUILayout.LabelField("Design");
-			++EditorGUI.indentLevel;
-			EditorGUILayout.BeginVertical("Box");
 			_setting.ScriptPublicVariableNameNotation = (Notation)EditorGUILayout.EnumPopup("Public variable name notation", _setting.ScriptPublicVariableNameNotation);
 			_setting.ScriptPrivateVariableNameNotation = (Notation)EditorGUILayout.EnumPopup("Private variable name notation", _setting.ScriptPrivateVariableNameNotation);
 			_setting.ScriptPrivateVariableNamePrefix = EditorGUILayout.TextField("Private variable name prefix", _setting.ScriptPrivateVariableNamePrefix);
