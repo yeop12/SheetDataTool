@@ -1,0 +1,20 @@
+[
+  {
+    "Id": 1,
+    "NameTextId": "FireBall",
+    "Type": "Active",
+    "IconImageInfo": {
+      "AtlasName": "SkillIcon",
+      "SpriteName": "FireBall"
+    }
+  },
+  {
+    "Id": 2,
+    "NameTextId": "MagicGuard",
+    "Type": "Passive",
+    "IconImageInfo": {
+      "AtlasName": "SkillIcon",
+      "SpriteName": "MagicGuard"
+    }
+  }
+]

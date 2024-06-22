@@ -1,0 +1,32 @@
+[
+  {
+    "Id": 1,
+    "NameTextId": "FireBall",
+    "Type": "Active",
+    "IconImageInfo": {
+      "AtlasName": "SkillIcon",
+      "SpriteName": "FireBall"
+    },
+    "OwnedDays": null
+  },
+  {
+    "Id": 2,
+    "NameTextId": "MagicGuard",
+    "Type": "Passive",
+    "IconImageInfo": {
+      "AtlasName": "SkillIcon",
+      "SpriteName": "MagicGuard"
+    },
+    "OwnedDays": null
+  },
+  {
+    "Id": 3,
+    "NameTextId": "Wings",
+    "Type": "Active",
+    "IconImageInfo": {
+      "AtlasName": "SkillIcon",
+      "SpriteName": "Wings"
+    },
+    "OwnedDays": 3
+  }
+]

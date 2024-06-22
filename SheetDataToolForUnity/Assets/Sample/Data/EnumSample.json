@@ -1,0 +1,12 @@
+[
+  {
+    "Id": 1,
+    "NameTextId": "FireBall",
+    "Type": "Active"
+  },
+  {
+    "Id": 2,
+    "NameTextId": "MagicGuard",
+    "Type": "Passive"
+  }
+]

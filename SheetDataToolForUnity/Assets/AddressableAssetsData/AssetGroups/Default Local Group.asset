@@ -37,6 +37,71 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1824f68c71d1862449a933693bbb2d9c
+    m_Address: SheetData/ConstantSample
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fdc55571925946a47b955ebb916183ee
+    m_Address: SheetData/DesignReferenceListSample
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 364d9fd7b907bf64d99bced528c1a1db
+    m_Address: SheetData/DesignReferenceSample
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a10e7436695ac9742b94b2f40cfea41c
+    m_Address: SheetData/DesignSample
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cb7de3e2e3357d84ea3ce615240097cb
+    m_Address: SheetData/EnumSample
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 99014aef58a030647a39e506753f24f6
+    m_Address: SheetData/ListSample
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 350bcf0f3b6b0cf44b2536991b69620b
+    m_Address: SheetData/MultipleKeySample
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0a41b327cba00554da07856611f00952
+    m_Address: SheetData/NullableSample
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4d95dc58f5a71ab4cab1f5fec6b0dc23
+    m_Address: SheetData/RecordAndListSample
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 665a351bc4ccf47448d661817eab0fcd
+    m_Address: SheetData/RecordReferenceListSample
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 372254753c4fc4d4fa53db191654cc08
+    m_Address: SheetData/RecordReferenceSample
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d302dfe1e87c83247bb85af0662f680a
+    m_Address: SheetData/RecordSample
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 732ebf1d4a7f4404caa723591eb9e4b4
+    m_Address: SheetData/Text
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 0217e1c9de1723341a954e84845574cc, type: 2}
   m_SchemaSet:

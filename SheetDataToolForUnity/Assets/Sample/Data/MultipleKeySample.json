@@ -1,0 +1,32 @@
+[
+  {
+    "SkillId": 1,
+    "Level": 1,
+    "AttackPowerCoefficient": 1
+  },
+  {
+    "SkillId": 1,
+    "Level": 2,
+    "AttackPowerCoefficient": 2
+  },
+  {
+    "SkillId": 2,
+    "Level": 1,
+    "AttackPowerCoefficient": 2
+  },
+  {
+    "SkillId": 2,
+    "Level": 2,
+    "AttackPowerCoefficient": 3
+  },
+  {
+    "SkillId": 3,
+    "Level": 1,
+    "AttackPowerCoefficient": 5
+  },
+  {
+    "SkillId": 3,
+    "Level": 2,
+    "AttackPowerCoefficient": 6
+  }
+]

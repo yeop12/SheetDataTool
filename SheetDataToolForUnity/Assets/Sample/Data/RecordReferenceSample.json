@@ -1,0 +1,14 @@
+[
+  {
+    "Id": 1,
+    "NameTextInfo": {
+      "TextId": "FireBall"
+    }
+  },
+  {
+    "Id": 2,
+    "NameTextInfo": {
+      "TextId": "MagicGuard"
+    }
+  }
+]

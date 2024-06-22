@@ -1,0 +1,49 @@
+[
+  {
+    "Id": 1,
+    "NameTextId": "FireBall",
+    "Type": "Active",
+    "IconImageInfo": {
+      "AtlasName": "SkillIcon",
+      "SpriteName": "FireBall"
+    },
+    "OwnedDays": null,
+    "RestrictedMapInfos": []
+  },
+  {
+    "Id": 2,
+    "NameTextId": "MagicGuard",
+    "Type": "Passive",
+    "IconImageInfo": {
+      "AtlasName": "SkillIcon",
+      "SpriteName": "MagicGuard"
+    },
+    "OwnedDays": null,
+    "RestrictedMapInfos": [
+      {
+        "MapId": 1000,
+        "ReasonTextId": "Reason_Town"
+      }
+    ]
+  },
+  {
+    "Id": 3,
+    "NameTextId": "Wings",
+    "Type": "Active",
+    "IconImageInfo": {
+      "AtlasName": "SkillIcon",
+      "SpriteName": "Wings"
+    },
+    "OwnedDays": 3,
+    "RestrictedMapInfos": [
+      {
+        "MapId": 1000,
+        "ReasonTextId": "Reason_Town"
+      },
+      {
+        "MapId": 1001,
+        "ReasonTextId": "Reason_EventMap"
+      }
+    ]
+  }
+]
