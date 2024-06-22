@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bd9af0b0b1e1de4fb5d6b86301da306, type: 3}
+  m_Name: Information
+  m_EditorClassIdentifier: 
+  _accessInfoJson: '{"SheetType":1,"Path":"..\\TestData","GoogleSheetId":""}'
+  _settingJson: '{"InputNotation":3,"IgnoreLineSymbol":";","EnumDefaultType":"int","ScriptEnumNameNotation":3,"ScriptEnumItemNameNotation":3,"ScriptRecordNameNotation":3,"ScriptPublicVariableNameNotation":3,"ScriptPrivateVariableNameNotation":2,"ScriptPrivateVariableNamePrefix":"_","ReferenceReplacementSymbol":"Id","ReferenceReplacementWord":"Reference","ScriptInterfaceNameNotation":3,"ScriptInterfaceNamePrefix":"I","ScriptFunctionNameNotation":3,"NamespaceName":"Sheet","UseDataContents":true,"PlatformInfos":[{"Platform":0,"DefineName":"UNITY_2022_1_OR_NEWER","NamespaceNames":["UnityEngine","UnityEngine.AddressableAssets"],"DefaultDirectory":"SheetData","ScriptPath":"Assets\\Sample\\Script","DataPath":"Assets\\Sample\\Data"}]}'

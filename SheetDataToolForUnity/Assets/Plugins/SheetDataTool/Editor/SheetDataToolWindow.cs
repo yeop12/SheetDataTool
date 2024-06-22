@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Google;
-using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,13 +11,9 @@ namespace SheetDataTool
 {
 	public class SheetDataToolWindow : EditorWindow
 	{
-		private const string AccessInfoKey = "SheetDataTool_AccessInfo";
-		private const string SettingKey = "SheetDataTool_Setting";
-		private const string SheetTypeKey = "SheetDataTool_SheetType";
-		private const string ExcelFolderPathKey = "SheetDataTool_ExcelFolderPath";
-
 		private enum Mode
 		{
+			Information,
 			AccessInfo,
 			Setting,
 			SheetList,
@@ -31,9 +26,8 @@ namespace SheetDataTool
 			GetWindow(typeof(SheetDataToolWindow), false, "SheetDataTool");
 		}
 
-		private SheetType _sheetType;
-		private string _excelFolderPath = string.Empty;
-		private GoogleSheetAccessInfo _accessInfo;
+		private Information _information;
+		private AccessInfo _accessInfo;
 		private Setting _setting;
 		private Mode _mode;
 		private SheetUtil _sheetUtil;
@@ -42,40 +36,36 @@ namespace SheetDataTool
 
 		private void OnEnable()
 		{
-			if (PlayerPrefs.HasKey(AccessInfoKey))
+			var informationGUIDs = AssetDatabase.FindAssets("t:SheetDataTool.Information");
+			if (informationGUIDs.Any())
 			{
-				var accessInfoJson = PlayerPrefs.GetString(AccessInfoKey);
-				_accessInfo = JsonConvert.DeserializeObject<GoogleSheetAccessInfo>(accessInfoJson);
+				foreach (var informationGUID in informationGUIDs)
+				{
+					var path = AssetDatabase.GUIDToAssetPath(informationGUID);
+					try
+					{
+						_information = AssetDatabase.LoadAssetAtPath<Information>(path);
+						break;
+					}
+					catch
+					{
+						// ignore
+					}
+				}
 			}
 
-			if (PlayerPrefs.HasKey(SettingKey))
+			if (_information is null)
 			{
-				var settingJson = PlayerPrefs.GetString(SettingKey);
-				_setting = JsonConvert.DeserializeObject<Setting>(settingJson);
+				_mode = Mode.Information;
+				return;
 			}
 
-			if (PlayerPrefs.HasKey(SheetTypeKey))
+			_accessInfo = _information.AccessInfo;
+			_setting = _information.Setting;
+			
+			if (_accessInfo is null || MakeSheetUtil() is false)
 			{
-				var sheetType = PlayerPrefs.GetInt(SheetTypeKey);
-				_sheetType = (SheetType)sheetType;
-			}
-
-			if (PlayerPrefs.HasKey(ExcelFolderPathKey))
-			{
-				_excelFolderPath = PlayerPrefs.GetString(ExcelFolderPathKey);
-			}
-
-			if (_sheetType == SheetType.GoogleSheet && _accessInfo is null)
-			{
-				_accessInfo = new GoogleSheetAccessInfo();
-				_mode = Mode.AccessInfo;
-			}
-			else if (_sheetType == SheetType.ExcelSheet && string.IsNullOrWhiteSpace(_excelFolderPath))
-			{
-				_mode = Mode.AccessInfo;
-			}
-			else if (MakeSheetUtil() is false)
-			{
+				_accessInfo = new AccessInfo();
 				_mode = Mode.AccessInfo;
 			}
 			else if (_setting is null)
@@ -93,11 +83,11 @@ namespace SheetDataTool
 		{
 			try
 			{
-				_sheetUtil = _sheetType switch
+				_sheetUtil = _accessInfo.SheetType switch
 				{
-					SheetType.GoogleSheet => new GoogleSheetUtil(_accessInfo.OAuthFilePath, _accessInfo.SheetID),
-					SheetType.ExcelSheet => new ExcelSheetUtil(_excelFolderPath),
-					_ => throw new NotImplementedException($"{_sheetType}")
+					SheetType.GoogleSheet => new GoogleSheetUtil(_accessInfo.Path, _accessInfo.GoogleSheetId),
+					SheetType.ExcelSheet => new ExcelSheetUtil(_accessInfo.Path),
+					_ => throw new NotImplementedException($"{_accessInfo.SheetType}")
 				};
 				return true;
 			}
@@ -128,6 +118,10 @@ namespace SheetDataTool
 		{
 			switch (_mode)
 			{
+				case Mode.Information:
+					DrawInformation();
+					break;
+
 				case Mode.AccessInfo:
 					DrawAccessInfo();
 					break;
@@ -149,49 +143,66 @@ namespace SheetDataTool
 			}
 		}
 
+		private void DrawInformation()
+		{
+			if (GUILayout.Button("Create Information"))
+			{
+				var path = EditorUtility.SaveFilePanelInProject("Create information", "Information", "asset", string.Empty);
+				if (path.Length != 0)
+				{
+					_information = CreateInstance<Information>();
+					AssetDatabase.CreateAsset(_information, path);
+					AssetDatabase.SaveAssets();
+
+					_accessInfo = new AccessInfo();
+					_mode = Mode.AccessInfo;
+				}
+			}
+		}
+
 		private void DrawAccessInfo()
 		{
 			EditorGUILayout.LabelField("Access Information", new GUIStyle(){fontSize = 20, normal = new GUIStyleState(){textColor = Color.white}});
 			EditorGUILayout.Separator();
 
-			_sheetType = (SheetType)EditorGUILayout.EnumPopup("Sheet type", _sheetType);
+			_accessInfo.SheetType = (SheetType)EditorGUILayout.EnumPopup("Sheet type", _accessInfo.SheetType);
 
-			switch (_sheetType)
+			switch (_accessInfo.SheetType)
 			{
 				case SheetType.GoogleSheet:
 					EditorGUILayout.LabelField("OAuth file path");
 					EditorGUILayout.BeginHorizontal();
-					_accessInfo.OAuthFilePath = EditorGUILayout.TextField(_accessInfo.OAuthFilePath);
+					_accessInfo.Path = EditorGUILayout.TextField(_accessInfo.Path);
 					if (GUILayout.Button("Find", GUILayout.MaxWidth(70)))
 					{
 						var path = EditorUtility.OpenFilePanel("OAuth file", Application.dataPath, "json");
 						if (path.Length != 0)
 						{
-							_accessInfo.OAuthFilePath = path;
+							_accessInfo.Path = Path.GetRelativePath(Directory.GetCurrentDirectory(), path);
 						}
 					}
 					EditorGUILayout.EndHorizontal();
 
 					EditorGUILayout.LabelField("Spread sheet id");
-					_accessInfo.SheetID = EditorGUILayout.TextField(_accessInfo.SheetID);
+					_accessInfo.GoogleSheetId = EditorGUILayout.TextField(_accessInfo.GoogleSheetId);
 					break;
 
 				case SheetType.ExcelSheet:
 					EditorGUILayout.BeginHorizontal();
-					_excelFolderPath = EditorGUILayout.TextField(_excelFolderPath);
+					_accessInfo.Path = EditorGUILayout.TextField(_accessInfo.Path);
 					if (GUILayout.Button("Find", GUILayout.MaxWidth(70)))
 					{
 						var path = EditorUtility.OpenFolderPanel("Excel folder", Application.dataPath, "");
 						if (path.Length != 0)
 						{
-							_excelFolderPath = path;
+							_accessInfo.Path = Path.GetRelativePath(Directory.GetCurrentDirectory(), path); ;
 						}
 					}
 					EditorGUILayout.EndHorizontal();
 					break;
 
 				default:
-					throw new NotImplementedException($"{_sheetType}");
+					throw new NotImplementedException($"{_accessInfo.SheetType}");
 			}
 			EditorGUILayout.Separator();
 
@@ -199,22 +210,9 @@ namespace SheetDataTool
 			{
 				if (MakeSheetUtil())
 				{
-					PlayerPrefs.SetInt(SheetTypeKey, (int)_sheetType);
-					switch (_sheetType)
-					{
-						case SheetType.GoogleSheet:
-							var accessInfoJson = JsonConvert.SerializeObject(_accessInfo);
-							PlayerPrefs.SetString(AccessInfoKey, accessInfoJson);
-							break;
-
-						case SheetType.ExcelSheet:
-							PlayerPrefs.SetString(ExcelFolderPathKey, _excelFolderPath);
-							break;
-
-						default:
-							throw new NotImplementedException($"{_sheetType}");
-					}
-					PlayerPrefs.Save();
+					_information.AccessInfo = _accessInfo;
+					EditorUtility.SetDirty(_information);
+					AssetDatabase.SaveAssets();
 					if (_setting is null)
 					{
 						_mode = Mode.Setting;
@@ -227,7 +225,7 @@ namespace SheetDataTool
 				}
 			}
 
-			if (PlayerPrefs.HasKey(AccessInfoKey) && GUILayout.Button("Back"))
+			if (_information.IsValid() && GUILayout.Button("Back"))
 			{
 				_mode = Mode.SheetList;
 			}
@@ -319,7 +317,30 @@ namespace SheetDataTool
 				}
 
 				EditorGUILayout.EndHorizontal();
-				platformInfo.Platform = (Platform)EditorGUILayout.EnumPopup("Platform", platformInfo.Platform);
+				var platform = (Platform)EditorGUILayout.EnumPopup("Platform", platformInfo.Platform);
+				if (platformInfo.Platform != platform)
+				{
+					platformInfo.Platform = platform;
+					switch (platform)
+					{
+						case Platform.Unity:
+						{
+							platformInfo.DefineName = "UNITY_2022_1_OR_NEWER";
+							platformInfo.NamespaceNames = new List<string> { "UnityEngine", "UnityEngine.AddressableAssets" };
+						}
+							break;
+
+						case Platform.CSharp:
+						{
+							platformInfo.DefineName = string.Empty;
+							platformInfo.NamespaceNames.Clear();
+						}
+							break;
+
+						default:
+							throw new NotImplementedException();
+					}
+				}
 				platformInfo.DefaultDirectory = EditorGUILayout.TextField("Default directory", platformInfo.DefaultDirectory);
 				platformInfo.DefineName = EditorGUILayout.TextField("Define name", platformInfo.DefineName);
 				EditorGUILayout.BeginHorizontal();
@@ -330,7 +351,7 @@ namespace SheetDataTool
 					var path = EditorUtility.OpenFolderPanel("Scrip path", Application.dataPath, "");
 					if (path.Length != 0) 
 					{
-						platformInfo.ScriptPath = path;
+						platformInfo.ScriptPath = Path.GetRelativePath(Directory.GetCurrentDirectory(), path);
 					}
 				}
 				EditorGUILayout.EndHorizontal();
@@ -342,32 +363,10 @@ namespace SheetDataTool
 					var path = EditorUtility.OpenFolderPanel("Data path", Application.dataPath, "");
 					if (path.Length != 0) 
 					{
-						platformInfo.DataPath = path;
+						platformInfo.DataPath = Path.GetRelativePath(Directory.GetCurrentDirectory(), path);
 					}
 				}
 				EditorGUILayout.EndHorizontal();
-				EditorGUILayout.LabelField("Namespace names");
-				++EditorGUI.indentLevel;
-				EditorGUILayout.BeginVertical("Box");
-				for (var i = 0; i < platformInfo.NamespaceNames.Count; ++i)
-				{
-					EditorGUILayout.BeginHorizontal();
-					platformInfo.NamespaceNames[i] = EditorGUILayout.TextField(platformInfo.NamespaceNames[i]);
-					if (GUILayout.Button("X", GUILayout.MaxWidth(30)))
-					{
-						platformInfo.NamespaceNames.RemoveAt(i);
-						GUIUtility.ExitGUI();
-						return;
-					}
-					EditorGUILayout.EndHorizontal();
-				}
-
-				if (GUILayout.Button("Add namespace name"))
-				{
-					platformInfo.NamespaceNames.Add(string.Empty);
-				}
-				EditorGUILayout.EndVertical();
-				--EditorGUI.indentLevel;
 
 				EditorGUILayout.EndVertical();
 				--EditorGUI.indentLevel;
@@ -376,7 +375,8 @@ namespace SheetDataTool
 			}
 			if (GUILayout.Button("Add Platform"))
 			{
-				_setting.PlatformInfos.Add(new PlatformInfo());
+				_setting.PlatformInfos.Add(new PlatformInfo()
+					{ NamespaceNames = new List<string> { "UnityEngine", "UnityEngine.AddressableAssets" } });
 			}
 			EditorGUILayout.EndVertical();
 			--EditorGUI.indentLevel;
@@ -387,13 +387,13 @@ namespace SheetDataTool
 
 			if (GUILayout.Button("Save"))
 			{
-				var settingJson = JsonConvert.SerializeObject(_setting);
-				PlayerPrefs.SetString(SettingKey, settingJson);
-				PlayerPrefs.Save();
+				_information.Setting = _setting;
+				EditorUtility.SetDirty(_information);
+				AssetDatabase.SaveAssets();
 				_mode = Mode.SheetList;
 			}
 
-			if (PlayerPrefs.HasKey(SettingKey) && GUILayout.Button("Back"))
+			if (_information.IsValid() && GUILayout.Button("Back"))
 			{
 				_mode = Mode.SheetList;
 			}

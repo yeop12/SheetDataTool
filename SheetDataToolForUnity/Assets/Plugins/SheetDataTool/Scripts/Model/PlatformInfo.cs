@@ -5,8 +5,8 @@ namespace SheetDataTool
 {
 	public sealed record PlatformInfo
 	{
-		public Platform Platform { get; set; }
-		public string DefineName { get; set; } = string.Empty;
+		public Platform Platform { get; set; } = Platform.Unity;
+		public string DefineName { get; set; } = "UNITY_2022_1_OR_NEWER";
 		public List<string> NamespaceNames { get; set; } = new();
 		public string DefaultDirectory { get; set; } = "SheetData";
 		public string ScriptPath { get; set; } = string.Empty;
