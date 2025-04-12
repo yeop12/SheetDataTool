@@ -5,7 +5,7 @@
   "description": "Provides easy data processing and use for Google Sheets and Excel Sheets in Unity.",
   "unity": "2019.1",
   "dependencies": {
-    "com.unity.addressables": "",
-    "com.cysharp.unitask": ""
+    "com.unity.addressables": "1.21.17",
+    "com.cysharp.unitask": "1.0.0"
   }
 }
